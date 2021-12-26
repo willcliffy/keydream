@@ -1,0 +1,13 @@
+FROM golang:1.17
+
+RUN mkdir -p /app
+WORKDIR /app
+
+ADD . /app
+
+RUN ["go", "get", "github.com/githubnemo/CompileDaemon"]
+RUN go build -o /_dist/lobby /app/cmd/lobby/main.go
+
+EXPOSE 80
+
+CMD ["/_dist/lobby"]

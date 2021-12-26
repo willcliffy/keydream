@@ -1,0 +1,27 @@
+
+version: "3"
+services:
+  lobby:
+    build:
+      context: .
+      dockerfile: Dockerfile.lobby
+    command: CompileDaemon -log-prefix=false -build="make lobby-build" -command="./_dist/lobby"
+    volumes:
+      - .:/app
+    ports:
+      - "8080:80"
+    networks:
+      - backend
+  gameserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.gameserver
+    command: CompileDaemon -log-prefix=false -build="make gameserver-build" -command="./_dist/gameserver"
+    volumes:
+      - .:/app
+    ports:
+      - "8081:80"
+    networks:
+      - backend
+networks:
+  backend:
