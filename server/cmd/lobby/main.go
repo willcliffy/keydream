@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/willcliffy/keydream-server/common"
-	game_models "github.com/willcliffy/keydream-server/gameserver/models"
+	game_models "github.com/willcliffy/keydream-server/world/models"
 	"github.com/willcliffy/keydream-server/lobby"
 )
 
@@ -59,7 +59,7 @@ func ConnectRouter(
 		r.Post("/connect", lobbyHandler.ConnectHandler)
 		r.Post("/join", lobbyHandler.JoinHandler)
 
-		r.Post("/gameservers", lobbyHandler.UpdateWorldHandler)
+		r.Post("/worlds", lobbyHandler.UpdateWorldHandler)
 	})
 
 	return router

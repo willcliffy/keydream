@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/willcliffy/keydream-server/common"
-	game_models "github.com/willcliffy/keydream-server/gameserver/models"
+	game_models "github.com/willcliffy/keydream-server/world/models"
 )
 
 type LobbyHandler struct {
@@ -24,8 +24,8 @@ func (l *LobbyHandler) ControlLoop() {
 			return
 		case <-time.After(time.Second * 5):
 			var s string
-			for _, gameServer := range l.Worlds {
-				s += fmt.Sprintf("\n\t%d: %s (%v)", gameServer.ID, gameServer.IP, gameServer.NumPlayers)
+			for _, world := range l.Worlds {
+				s += fmt.Sprintf("\n\t%d: %s (%v)", world.ID, world.IP, world.NumPlayers)
 			}
 
 			log.Printf("Game server list: %+v\n", s)
@@ -43,14 +43,14 @@ func (l *LobbyHandler) UpdateWorldHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	var gameServer game_models.WorldBroadcast
+	var world game_models.WorldBroadcast
 
-	if err = json.Unmarshal(bodyBytes.Bytes(), &gameServer); err != nil {
+	if err = json.Unmarshal(bodyBytes.Bytes(), &world); err != nil {
 		http.Error(w, "unable to unmarshal request body", http.StatusBadRequest)
 		return
 	}
 
-	l.Worlds[gameServer.ID] = gameServer
+	l.Worlds[world.ID] = world
 
 	common.SendHTTPResponse(w, nil, http.StatusNoContent)
 }

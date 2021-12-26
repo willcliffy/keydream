@@ -22,7 +22,7 @@ func BroadcastWorld(wb WorldBroadcast) error {
 	}
 
 	// TODO: make this configurable. Right now, this is hardcoded to only work with docker compose locally.
-	req, err := http.NewRequest("POST", "http://lobby:80/api/v1/gameservers", bytes.NewBuffer(payload))
+	req, err := http.NewRequest("POST", "http://lobby:80/api/v1/worlds", bytes.NewBuffer(payload))
 	if err != nil {
 		return err
 	}

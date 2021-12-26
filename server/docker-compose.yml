@@ -12,11 +12,11 @@ services:
       - "8080:80"
     networks:
       - backend
-  gameserver:
+  world:
     build:
       context: .
-      dockerfile: Dockerfile.gameserver
-    command: CompileDaemon -log-prefix=false -build="make gameserver-build" -command="./_dist/gameserver"
+      dockerfile: Dockerfile.world
+    command: CompileDaemon -log-prefix=false -build="make world-build" -command="./_dist/world"
     volumes:
       - .:/app
     ports:

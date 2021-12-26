@@ -1,4 +1,4 @@
-package gameserver
+package world
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/willcliffy/keydream-server/common"
-	game_models "github.com/willcliffy/keydream-server/gameserver/models"
+	game_models "github.com/willcliffy/keydream-server/world/models"
 )
 
 type Player struct {
@@ -18,7 +18,7 @@ type Player struct {
 	Conn        net.Conn
 	LastUpdated time.Time
 
-	world  *World
+	world *World
 }
 
 func NewPlayer(conn net.Conn, world *World) Player {
@@ -29,7 +29,7 @@ func NewPlayer(conn net.Conn, world *World) Player {
 		Conn:        conn,
 		LastUpdated: time.Now(),
 
-		world:       world,
+		world: world,
 	}
 }
 

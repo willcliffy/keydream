@@ -6,8 +6,8 @@ WORKDIR /app
 ADD . /app
 
 RUN ["go", "get", "github.com/githubnemo/CompileDaemon"]
-RUN go build -o /_dist/gameserver /app/cmd/gameserver/main.go
+RUN go build -o /_dist/world /app/cmd/world/main.go
 
 EXPOSE 80
 
-CMD ["/_dist/gameserver"]
+CMD ["/_dist/world"]

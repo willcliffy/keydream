@@ -6,16 +6,16 @@ import (
 	"os"
 	"time"
 
-	"github.com/willcliffy/keydream-server/gameserver"
+	"github.com/willcliffy/keydream-server/world"
 )
 
 func main() {
 	// TODO - when I set up envs, toggle this off except for local
-	// This is here so that the gameserver control loop begins after the lobby is ready
+	// This is here so that the world control loop begins after the lobby is ready
 	time.Sleep(3 * time.Second)
 
 	// TODO - get ID from lobby
-	var world gameserver.World
+	var world world.World
 	world.Initialize()
 
 	listener, err := net.Listen("tcp", "localhost:80")

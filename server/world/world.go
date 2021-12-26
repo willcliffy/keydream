@@ -1,4 +1,4 @@
-package gameserver
+package world
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/willcliffy/keydream-server/common"
-	game_models "github.com/willcliffy/keydream-server/gameserver/models"
+	game_models "github.com/willcliffy/keydream-server/world/models"
 )
 
 type World struct {

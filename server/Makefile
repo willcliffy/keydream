@@ -1,4 +1,4 @@
-.PHONY: lobby gameserver mockclient
+.PHONY: lobby world mockclient
 
 up-build:
 	docker-compose up --build
@@ -14,11 +14,11 @@ lobby:
 	go run cmd/lobby/main.go
 
 
-gameserver-build:
-	go build -o ./_dist/gameserver /app/cmd/gameserver/main.go
+world-build:
+	go build -o ./_dist/world /app/cmd/world/main.go
 
-gameserver:
-	go run cmd/gameserver/main.go
+world:
+	go run cmd/world/main.go
 
 
 mockclient:
