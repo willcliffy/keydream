@@ -27,7 +27,7 @@ function love.load()
 
     love.graphics.setBackgroundColor(Color2)
 
-    LocalPlayer = Player:new(nil)
+    LocalPlayer = Player:new(nil, "willcliff")
     WorldLobby = Lobby:new(nil, LocalPlayer)
 end
 
@@ -45,7 +45,7 @@ function love.mousepressed(x, y, button, istouch, presses)
     -- todo - add `IsButtonPressed` helper here. maybe make a button component
     if LocalPlayer:InLobby() then
         if WorldLobby.ConnectButton:IsButtonPressed(x, y) then
-            WorldLobby:Connect("Player")
+            WorldLobby:Connect(LocalPlayer.Name)
         end
     end
 end

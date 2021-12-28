@@ -6,13 +6,15 @@ PlayerState = {
 }
 
 Player = {
+    Name = "",
     State = PlayerState.LOBBY_DISCONNECTED
 }
 
-function Player:new(o)
+function Player:new(o, name)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
+    o.Name = name
     return o
 end
 

@@ -42,10 +42,11 @@ function Button:Draw()
     love.graphics.setColor(self.Color)
     love.graphics.rectangle('fill', self.X, self.Y, self.Width, self.Height)
     love.graphics.setColor(self.TextColor)
-    love.graphics.print(self.Text, self.X + 75, self.Y + 13)
+    -- todo - center text in button
+    love.graphics.print(self.Text, self.X + 50, self.Y + 13)
 end
 
-function Button:mousepressed(x, y, button)
+function Button:IsButtonPressed(x, y)
     if x > self.X and x < self.X + self.Width and y > self.Y and y < self.Y + self.Height then
         return true
     end

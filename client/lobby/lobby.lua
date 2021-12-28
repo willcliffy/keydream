@@ -16,7 +16,14 @@ function Lobby:new(o, player)
     setmetatable(o, self)
     self.__index = self
     self.Player = player
-    self.ConnectButton = Button:new(nil, love.graphics.getWidth() / 2 - ButtonWidth / 2, love.graphics.getHeight() * 3 / 4 - ButtonHeight / 2, ButtonWidth, ButtonHeight, "Connect", Color1)
+    self.ConnectButton = Button:new(nil,
+        love.graphics.getWidth() / 2 - ButtonWidth / 2,
+        love.graphics.getHeight() * 3 / 4 - ButtonHeight / 2,
+        ButtonWidth,
+        ButtonHeight,
+        "Connect",
+        Color3,
+        Color5)
     return o
 end
 
@@ -28,19 +35,21 @@ function Lobby:Connect(name)
         return
     end
 
+    print(b)
+
     self.Worlds = cjson.decode(b)
     self.Connected = true
     self.Player:SetState(PlayerState.LOBBY_CONNECTED)
 end
 
 function Lobby:Draw()
-    if self.Player.State == PlayerState.Connected then
+    if self.Player.State == PlayerState.LOBBY_CONNECTED then
         local y = World1Y
 
         love.graphics.setColor(Color1)
         love.graphics.printf("Connected!", 1, 1, 800)
 
-        for k, v in pairs(self.Worlds) do
+        for k, v in pairs(self.Worlds.Worlds) do
             love.graphics.setColor(Color3)
             love.graphics.rectangle('fill', World1X, y, 4 * ButtonWidth, ButtonHeight)
 
@@ -49,7 +58,6 @@ function Lobby:Draw()
             love.graphics.printf(v.num_players .. "/20 players", WorldNumPlayersOffset + 10, y + 10, 800)
             -- love.graphics.printf(v.region, WorldRegionOffset, i, 800)
 
-            NumWorlds = NumWorlds + 1
             y = y + 100
         end
 
