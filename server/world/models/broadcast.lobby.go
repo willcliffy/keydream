@@ -5,14 +5,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/willcliffy/keydream-server/common"
 )
 
 type WorldBroadcast struct {
-	ID         common.WorldID `json:"id"`
-	IP         string         `json:"ip"`
-	NumPlayers int            `json:"num_players"`
+	ID          common.WorldID `json:"id"`
+	IP          string         `json:"ip"`
+	NumPlayers  int            `json:"num_players"`
+	LastUpdated time.Time      `json:"-"`
 }
 
 func BroadcastWorld(wb WorldBroadcast) error {

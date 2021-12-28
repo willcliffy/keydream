@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	_ "log"
 	"net/http"
 	"time"
 
@@ -22,13 +22,13 @@ func (l *LobbyHandler) ControlLoop() {
 		select {
 		case <-l.shutdown:
 			return
-		case <-time.After(time.Second * 5):
+		default:
 			var s string
 			for _, world := range l.Worlds {
 				s += fmt.Sprintf("\n\t%d: %s (%v)", world.ID, world.IP, world.NumPlayers)
 			}
 
-			log.Printf("Game server list: %+v\n", s)
+			// log.Printf("Game server list: %+v\n", s)
 			time.Sleep(10 * time.Second)
 		}
 	}
@@ -49,6 +49,8 @@ func (l *LobbyHandler) UpdateWorldHandler(w http.ResponseWriter, r *http.Request
 		http.Error(w, "unable to unmarshal request body", http.StatusBadRequest)
 		return
 	}
+
+	world.LastUpdated = time.Now()
 
 	l.Worlds[world.ID] = world
 
