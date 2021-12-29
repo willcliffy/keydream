@@ -1,4 +1,5 @@
 WorldView = {
+    World = nil,
     X = 0,
     Y = 0,
     Width = 0,
@@ -8,21 +9,29 @@ WorldView = {
     Color = Color3
 }
 
-function WorldView:new()
+function WorldView:new(o, world)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    
+    o.World = world
     return o
 end
 
-function WorldView:Draw()
+function WorldView:Draw(y)
     love.graphics.setColor(Color3)
-    love.graphics.rectangle('fill', World1X, y, 4 * ButtonWidth, ButtonHeight)
+    love.graphics.rectangle('fill', love.graphics.getWidth() / 4, y, 4 * DefaultButtonWidth, DefaultButtonHeight)
 
     love.graphics.setColor(Color2)
-    love.graphics.printf("world " .. v.id, WorldIDOffset + 10, y + 10, 800)
-    love.graphics.printf(v.num_players .. "/20 players", WorldNumPlayersOffset + 10, y + 10, 800)
+    love.graphics.printf(
+        "world " .. self.World.id,
+        love.graphics.getWidth() / 4,
+        y,
+        800)
+    love.graphics.printf(
+        self.World.num_players .. "/20 players",
+        love.graphics.getWidth() / 2,
+        y,
+        800)
 end
 
 function WorldView:IsButtonPressed(x, y)

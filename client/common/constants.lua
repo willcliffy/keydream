@@ -3,3 +3,9 @@ Color2 = {84 / 255, 83 / 255, 108 / 255}
 Color3 = {170 / 255, 149 / 255, 119 / 255}
 Color4 = {171 / 255, 180 / 255, 201 / 255}
 Color5 = {211 / 255, 220 / 255, 232 / 255}
+
+DefaultButtonWidth = 250
+DefaultButtonHeight = 50
+
+LobbyURL = "http://localhost:8080"
+

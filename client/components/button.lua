@@ -1,4 +1,4 @@
-require("components.colors")
+require("common.constants")
 
 Button = {
     X = 0,
@@ -26,6 +26,10 @@ end
 
 function Button:newConnectButton(o, x, y)
     return Button:new(o, x, y, 250, 75, "Connect", Color3, Color5)
+end
+
+function Button:newBackButton(o, x, y)
+    return Button:new(o, x, y, 250, 75, "  Back  ", Color3, Color5)
 end
 
 function Button:Draw()

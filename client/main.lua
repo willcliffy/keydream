@@ -1,8 +1,6 @@
 require("lobby.lobby")
 require("lobby.player")
 
-require("components.colors")
-
 function love.load()
     love.graphics.setFont(love.graphics.newFont("assets/fonts/UbuntuMono-Regular.ttf", 42))
     love.graphics.setBackgroundColor(Color2)
