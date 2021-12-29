@@ -11,19 +11,17 @@ require("components.button")
 
 local backendURL = "http://localhost:8080"
 
+local defaultButtonWidth = 200
+local defaultButtonHeight = 50
+
 function Lobby:new(o, player)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
     self.Player = player
-    self.ConnectButton = Button:new(nil,
-        love.graphics.getWidth() / 2 - ButtonWidth / 2,
-        love.graphics.getHeight() * 3 / 4 - ButtonHeight / 2,
-        ButtonWidth,
-        ButtonHeight,
-        "Connect",
-        Color3,
-        Color5)
+    self.ConnectButton = Button:newConnectButton(nil,
+        love.graphics.getWidth() / 2 - defaultButtonWidth / 2,
+        love.graphics.getHeight() * 3 / 4 - defaultButtonHeight / 2)
     return o
 end
 
@@ -35,11 +33,25 @@ function Lobby:Connect(name)
         return
     end
 
-    print(b)
+    local connectRes = cjson.decode(b)
+    self.Worlds = connectRes.Worlds
 
-    self.Worlds = cjson.decode(b)
     self.Connected = true
     self.Player:SetState(PlayerState.LOBBY_CONNECTED)
+end
+
+function Lobby:JoinWorld(worldNumber)
+    local b, c, h = http.request(backendURL .. "/api/v1/join", "{\"id\":\"" .. worldNumber .. "\"}")
+
+    if c ~= 200 then
+        print("Error joining world: " .. c .. " " .. b)
+        return
+    end
+
+    local joinRes = cjson.decode(b)
+
+    self.Connect = false
+    self.Player:SetState(PlayerState.GAME_CONNECTING)
 end
 
 function Lobby:Draw()
@@ -51,18 +63,17 @@ function Lobby:Draw()
 
         for k, v in pairs(self.Worlds.Worlds) do
             love.graphics.setColor(Color3)
-            love.graphics.rectangle('fill', World1X, y, 4 * ButtonWidth, ButtonHeight)
+            love.graphics.rectangle('fill', World1X, y, 4 * defaultButtonWidth, defaultButtonHeight)
 
             love.graphics.setColor(Color2)
             love.graphics.printf("world " .. v.id, WorldIDOffset + 10, y + 10, 800)
             love.graphics.printf(v.num_players .. "/20 players", WorldNumPlayersOffset + 10, y + 10, 800)
-            -- love.graphics.printf(v.region, WorldRegionOffset, i, 800)
 
             y = y + 100
         end
 
         love.graphics.setColor(Color3)
-        love.graphics.rectangle('fill', Button1X, Button1Y, ButtonWidth, ButtonHeight)
+        love.graphics.rectangle('fill', Button1X, Button1Y, defaultButtonWidth, defaultButtonHeight)
 
         love.graphics.setColor(Color5)
         love.graphics.print('Back', Button1X + 75, Button1Y + 13)

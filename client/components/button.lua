@@ -25,17 +25,7 @@ function Button:new(o, x, y, w, h, text, color, textColor)
 end
 
 function Button:newConnectButton(o, x, y)
-    o = o or {}
-    setmetatable(o, self)
-    self.__index = self
-    o.X = x
-    o.Y = y
-    o.Width = w
-    o.Height = h
-    o.Text = "Connect"
-    o.Color = Color3
-    o.TextColor = Color5
-    return o
+    return Button:new(o, x, y, 250, 75, "Connect", Color3, Color5)
 end
 
 function Button:Draw()
