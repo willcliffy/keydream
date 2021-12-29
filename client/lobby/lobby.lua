@@ -1,7 +1,9 @@
 local cjson = require("cjson")
 local http = require("socket.http")
+
 require("components.button")
 require("common.constants")
+require("common.utils")
 require("components.lobby_worldview")
 
 Lobby = {
@@ -50,17 +52,23 @@ function Lobby:Connect(name)
     self.Player:SetState(PlayerState.LOBBY_CONNECTED)
 end
 
-function Lobby:JoinWorld(worldNumber)
-    local b, c, h = http.request(LobbyURL .. "/api/v1/join", "{\"id\":\"" .. worldNumber .. "\"}")
+function Lobby:JoinWorld(world)
+    local b, c, h = http.request(
+        LobbyURL .. "/api/v1/join",
+        [[
+            {
+                "id":]]..world.id..[[
+            }
+        ]])
 
     if c ~= 200 then
+        -- TODO - show this in the UI somewhere
         print("Error joining world: " .. c .. " " .. b)
         return
     end
 
     local joinRes = cjson.decode(b)
 
-    self.Connect = false
     self.Player:SetState(PlayerState.GAME_CONNECTING)
 
     -- todo - actually connect to world
@@ -78,7 +86,28 @@ function Lobby:Draw()
         end
 
         Lobby.BackButton:Draw()
-    else
+    elseif self.Player.State == PlayerState.LOBBY_DISCONNECTED then
         Lobby.ConnectButton:Draw()
+    end
+end
+
+function Lobby:mousepressed(x, y, button, istouch, presses)
+    if self.Player.State == PlayerState.LOBBY_CONNECTED then
+        for k, v in pairs(self.WorldViews) do
+            if v:IsButtonPressed(x, y) then
+                self:JoinWorld(v.World)
+                return
+            end
+        end
+
+        if Lobby.BackButton:IsButtonPressed(x, y) then
+            self.Worlds = {}
+            self.WorldViews = {}
+            self.Player:SetState(PlayerState.LOBBY_DISCONNECTED)
+        end
+    elseif LocalPlayer.State == PlayerState.LOBBY_DISCONNECTED then
+        if self.ConnectButton:IsButtonPressed(x, y) then
+            self:Connect(LocalPlayer.Name)
+        end
     end
 end

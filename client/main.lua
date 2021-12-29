@@ -26,10 +26,10 @@ end
 
 function love.mousepressed(x, y, button, istouch, presses)
     if LocalPlayer:InLobby() then
-        if WorldLobby.ConnectButton:IsButtonPressed(x, y) then
-            WorldLobby:Connect(LocalPlayer.Name)
-        end
+        WorldLobby:mousepressed(x, y, button, istouch, presses)
     end
+
+    -- gameserver stuff here
 end
 
 function love.resize(w, h)

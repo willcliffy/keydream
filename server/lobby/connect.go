@@ -49,7 +49,7 @@ func (l *LobbyHandler) JoinHandler(w http.ResponseWriter, r *http.Request) {
 
 	var joinRequest lobby_models.JoinRequest
 	if err := json.Unmarshal(bodyBytes.Bytes(), &joinRequest); err != nil {
-		http.Error(w, "unable to unmarshal request body", http.StatusBadRequest)
+		http.Error(w, "unable to unmarshal request body: " + err.Error(), http.StatusBadRequest)
 		return
 	}
 

@@ -29,7 +29,7 @@ function Button:newConnectButton(o, x, y)
 end
 
 function Button:newBackButton(o, x, y)
-    return Button:new(o, x, y, 250, 75, "  Back  ", Color3, Color5)
+    return Button:new(o, x, y, 250, 75, " Back  ", Color3, Color5)
 end
 
 function Button:Draw()
