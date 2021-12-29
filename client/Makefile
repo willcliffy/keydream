@@ -1,0 +1,4 @@
+PHONY: client
+
+client:
+	love .

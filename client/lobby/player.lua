@@ -1,8 +1,8 @@
 PlayerState = {
     LOBBY_DISCONNECTED = 1,
-    LOBBY_CONNECTED = 2,
-    GAME_CONNECTING = 3,
-    GAME_CONNECTED = 4
+    LOBBY_CONNECTED    = 2,
+    GAME_CONNECTING    = 3,
+    GAME_CONNECTED     = 4
 }
 
 Player = {

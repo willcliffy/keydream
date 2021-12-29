@@ -25,4 +25,4 @@ mockclient:
 	cd server && make mockclient
 
 client:
-	love ./client
+	cd client && make client
