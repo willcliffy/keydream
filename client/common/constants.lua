@@ -9,3 +9,19 @@ DefaultButtonHeight = 50
 
 LobbyURL = "http://localhost:8080"
 
+TestMap = function(x, y)
+    local map = {}
+    for i = 1, x do
+        map[i] = {}
+        for j = 1, y do
+            map[i][j] = math.random(10)
+        end
+    end
+    return map
+end
+
+BackgroundScale = 4
+CharacterScale = 4.5
+
+TileSize = 16
+TileSizeScaled = TileSize * BackgroundScale

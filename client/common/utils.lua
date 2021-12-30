@@ -11,3 +11,21 @@ function RPrint(s, l, i) -- recursive Print (structure, limit, indent)
 	end
 	return l
 end
+
+function InitializeTileset()
+	local tilesetImage = love.graphics.newImage("../assets/environment/cainos/TX Tileset Grass.png")
+	tilesetImage:setFilter("nearest", "linear")
+
+	return love.graphics.newSpriteBatch(tilesetImage)
+end
+
+function UpdateTileset(t)
+	t:clear()
+
+	for x = 0, love.graphics.getWidth() / 32 do
+		for y = 0, love.graphics.getHeight() / 32 do
+			t:add(x, y, math.random(0, 1))
+		end
+	end
+	t:flush()
+end

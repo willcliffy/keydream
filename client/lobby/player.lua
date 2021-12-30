@@ -35,3 +35,7 @@ end
 function Player:InLobby()
     return self.State == PlayerState.LOBBY_DISCONNECTED or self.State == PlayerState.LOBBY_CONNECTED
 end
+
+function Player:InGame()
+    return self.State == PlayerState.GAME_CONNECTING or self.State == PlayerState.GAME_CONNECTED
+end
