@@ -20,7 +20,7 @@ func main() {
 	}
 
 	server := http.Server{
-		Addr:    ":80",
+		Addr:    "0.0.0.0:80",
 		Handler: ConnectRouter(lobbyHandler),
 	}
 

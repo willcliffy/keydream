@@ -27,5 +27,6 @@ function UpdateTileset(t)
 			t:add(x, y, math.random(0, 1))
 		end
 	end
+
 	t:flush()
 end

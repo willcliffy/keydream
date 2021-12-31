@@ -20,8 +20,9 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8081:80"
+      - "8081:8081/udp"
     networks:
       - backend
+
 networks:
   backend:

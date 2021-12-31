@@ -8,10 +8,21 @@ import (
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "127.0.0.1:8081")
+	ServerAddr, err := net.ResolveUDPAddr("udp", ":8081")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	LocalAddr, err := net.ResolveUDPAddr("udp", ":0")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	conn, err := net.DialUDP("udp", LocalAddr, ServerAddr)
 	if err != nil {
 		log.Fatal("* dialing:", err)
 	}
+
 	defer conn.Close()
 	log.Println("* Connected to server.")
 

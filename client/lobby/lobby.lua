@@ -35,7 +35,20 @@ function Lobby:new(o, player)
 end
 
 function Lobby:Connect(name)
-    local b, c, h = http.request(LobbyURL .. "/api/v1/connect", "{\"name\":\"" .. name .. "\"}")
+    local url
+    if LOCAL then
+        url = "http://localhost:8080/api/v1/connect"
+    else
+        url = "http://lobby.keydream.tk/api/v1/connect"
+    end
+
+    local b, c, _ = http.request(
+        url,
+        [[
+            {
+                "name":"]]..name..[["
+            }
+        ]])
 
     if c ~= 200 then
         print("Error connecting to backend: " .. c .. " " .. (b or ""))
@@ -53,8 +66,15 @@ function Lobby:Connect(name)
 end
 
 function Lobby:JoinWorld(world)
-    local b, c, h = http.request(
-        LobbyURL .. "/api/v1/join",
+    local url
+    if LOCAL then
+        url = "http://localhost:8080/api/v1/join"
+    else
+        url = "http://lobby.keydream.tk/api/v1/join"
+    end
+
+    local b, c, _ = http.request(
+        url,
         [[
             {
                 "id":]]..world.id..[[
@@ -63,15 +83,12 @@ function Lobby:JoinWorld(world)
 
     if c ~= 200 then
         -- TODO - show this in the UI somewhere
-        print("Error joining world: " .. c .. " " .. b)
+        print("Error joining world: " .. c .. " " .. (b or ""))
         return
     end
 
     local joinRes = cjson.decode(b)
-
     self.Player:SetState(PlayerState.GAME_CONNECTING)
-
-    -- todo - actually connect to world
 end
 
 function Lobby:Draw()
@@ -95,6 +112,7 @@ function Lobby:mousepressed(x, y, button, istouch, presses)
     if self.Player.State == PlayerState.LOBBY_CONNECTED then
         for k, v in pairs(self.WorldViews) do
             if v:IsButtonPressed(x, y) then
+                RPrint(v.World)
                 self:JoinWorld(v.World)
                 return
             end

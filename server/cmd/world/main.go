@@ -18,7 +18,12 @@ func main() {
 	var world world.World
 	world.Initialize()
 
-	listener, err := net.Listen("tcp", "localhost:80")
+	localAddr, err := net.ResolveUDPAddr("udp", ":8081")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	listener, err := net.ListenUDP("udp", localAddr)
 	if err != nil {
 		log.Println("Error listening:", err.Error())
 		os.Exit(1)

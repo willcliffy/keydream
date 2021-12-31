@@ -22,4 +22,4 @@ world:
 
 
 mockclient:
-	go run cmd/mock_client/main.go
+	go run cmd/__mock_client/main.go

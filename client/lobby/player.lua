@@ -7,7 +7,8 @@ PlayerState = {
 
 Player = {
     Name = "",
-    State = PlayerState.LOBBY_DISCONNECTED
+    State = PlayerState.LOBBY_DISCONNECTED,
+    ID = 0,
 }
 
 function Player:new(o, name)
@@ -34,6 +35,10 @@ end
 
 function Player:InLobby()
     return self.State == PlayerState.LOBBY_DISCONNECTED or self.State == PlayerState.LOBBY_CONNECTED
+end
+
+function Player:ConnectingToGame()
+    return self.State == PlayerState.GAME_CONNECTING
 end
 
 function Player:InGame()

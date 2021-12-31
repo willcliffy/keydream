@@ -15,12 +15,10 @@ function love.load()
 
     -- todo - add text box for names
     LocalPlayer = Player:new(nil, "willcliff")
-
     LocalLobby = Lobby:new(nil, LocalPlayer)
-    LocalWorld = World:new(nil)
+    LocalWorld = World:new(nil, LocalPlayer, "127.0.0.1", 8081)
 
     love.keyboard.keysPressed = {}
-    love.keyboard.keysReleased = {}
 end
 
 function love.update(dt)
@@ -32,6 +30,11 @@ end
 function love.draw()
     if LocalPlayer:InLobby() then
         LocalLobby:Draw()
+    elseif LocalPlayer:ConnectingToGame() then
+        love.graphics.print("Connecting to game...", 0, 0)
+        if LocalWorld:Connect() then
+            LocalPlayer:SetState(PlayerState.GAME_CONNECTED)
+        end
     elseif LocalPlayer:InGame() then
         LocalWorld:Draw()
     end

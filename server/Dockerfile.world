@@ -8,6 +8,6 @@ ADD . /app
 RUN ["go", "get", "github.com/githubnemo/CompileDaemon"]
 RUN go build -o /_dist/world /app/cmd/world/main.go
 
-EXPOSE 80
+EXPOSE 8081/udp
 
 CMD ["/_dist/world"]
