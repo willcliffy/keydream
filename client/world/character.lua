@@ -36,6 +36,9 @@ Character = {
     Direction = WalkingDirections.DOWN,
     State = CharacterState.IDLE,
 
+    LastX = 0,
+    LastY = 0,
+
     X = 0,
     Y = 0,
 
@@ -66,6 +69,9 @@ function Character:new(o, x, y)
 end
 
 function Character:Update(dt)
+    self.LastY = self.Y
+    self.LastX = self.X
+
     if love.keyboard.keysPressed["up"] and self.Y - self.Speed > 0 then
         self.Y = self.Y - self.Speed
         self.Direction = WalkingDirections.UP
@@ -91,5 +97,9 @@ end
 
 function Character:Draw()
     self.Animations[self.Direction][self.State]:Draw(self.X, self.Y, CharacterScale, CharacterScale)
+end
+
+function Character:HasMoved()
+    return self.LastX ~= self.X or self.LastY ~= self.Y
 end
 

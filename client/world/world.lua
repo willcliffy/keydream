@@ -3,6 +3,7 @@ local coroutine = require("coroutine")
 
 require("world.background")
 require("world.character")
+require("world.reader")
 
 World = {
     IP = "",
@@ -16,6 +17,8 @@ World = {
     Background = nil,
 
     UPDConn = nil,
+    UDPReader = nil,
+    UDPReaderThread = nil,
     Connected = false,
 
     TimeSinceLastTick = 0,
@@ -37,6 +40,9 @@ function World:new(o, player, ip, port)
     self.Player = player
 
     Background:Update()
+
+    self.UDPReader = UDPReader:new(nil, self.UDPConn)
+    self.UDPReaderThread = coroutine.create(self.UDPReader:Start(self.OnMessageReceived))
 
     return o
 end
@@ -77,15 +83,14 @@ end
 
 function World:Update(dt)
     if self.Connected then
+        self.Background:Update()
+        self.PlayerCharacter:Update(dt)
         self.TimeSinceLastTick = self.TimeSinceLastTick + dt
+
         if self.TimeSinceLastTick >= self.TickDuration then
-            -- this can tick multiple times in one update. That's correct behavior, right?
             self.TimeSinceLastTick = self.TimeSinceLastTick - self.TickDuration
             self:Tick()
         end
-
-        self.Background:Update()
-        self.PlayerCharacter:Update(dt)
     end
 end
 
@@ -93,16 +98,9 @@ function World:Tick()
     if self.Connected then
         self.UDPConn:send("tick \n")
 
-        self.UDPConn:send("move "..self.Player.ID .." "..self.PlayerCharacter.X.." "..self.PlayerCharacter.Y.." \n")
-
-        -- todo: start coroutine for receiving data
-        -- local s, status, _ = self.UDPConn:receive()
-        -- if status == "closed" then
-        --     print("connection closed")
-        --     self.Connected = false
-        -- end
-
-        -- print(s)
+        if self.PlayerCharacter:HasMoved() then
+            self.UDPConn:send("move "..self.Player.ID .." "..self.PlayerCharacter.X.." "..self.PlayerCharacter.Y.." \n")
+        end
     end
 end
 
@@ -113,4 +111,8 @@ end
 
 function World:mousepressed(x, y, button, istouch, presses)
     -- right now, nothing is clickable
+end
+
+function World:OnMessageReceived(msg)
+
 end
