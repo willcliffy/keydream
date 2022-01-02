@@ -17,11 +17,24 @@ type World struct {
 	ID         common.WorldID
 	Players    map[common.PlayerID]*Player
 	NumPlayers int
+	Conn       *net.UDPConn
+}
+
+func NewWorld(id common.WorldID, udpConn *net.UDPConn) *World {
+	return &World{
+		ID:         id,
+		Players:    make(map[common.PlayerID]*Player),
+		NumPlayers: 0,
+		Conn:       udpConn,
+	}
 }
 
 func (w World) GetNextPlayerID() common.PlayerID {
 	for i := common.PlayerID(1); i <= 255; i++ {
 		if w.Players[i] == nil {
+			return common.PlayerID(i)
+		} else if w.Players[i].LastUpdated.Before(time.Now().Add(-common.PlayerTimeout)) {
+			w.OnPlayerLeft(*w.Players[i])
 			return common.PlayerID(i)
 		}
 	}
@@ -29,10 +42,10 @@ func (w World) GetNextPlayerID() common.PlayerID {
 	return common.NilPlayerID
 }
 
-func (w *World) ControlLoop(l *net.UDPConn) {
+func (w *World) ControlLoop() {
 	for {
 		buf := make([]byte, 128)
-		_, addr, err := l.ReadFromUDP(buf)
+		_, addr, err := w.Conn.ReadFromUDP(buf)
 		if err != nil {
 			log.Printf("Error reading from packet conn: %s\n", err.Error())
 			continue
@@ -46,33 +59,42 @@ func (w *World) ControlLoop(l *net.UDPConn) {
 
 		switch msg[0] {
 		case "tick":
-			_, _ = l.WriteToUDP([]byte("tock\n"), addr)
+			playerID, err := strconv.Atoi(msg[1])
+			if err != nil {
+				log.Printf("Error parsing player ID: %s\n", err.Error())
+				continue
+			}
+
+			player, ok := w.Players[common.PlayerID(playerID)]
+			if !ok {
+				log.Printf("Player %d not found\n", playerID)
+				continue
+			}
+
+			player.OnTick()
 		case "join":
-			if len(msg) != 2 {
+			if len(msg) != 3 {
 				log.Printf("Invalid join message: %s", string(buf))
 				continue
 			}
 
-			if w.NumPlayers == common.MaxPlayersPerWorld {
+			if w.NumPlayers >= common.MaxPlayersPerWorld {
 				log.Printf("World is full!\n")
 				time.Sleep(10 * time.Second)
 				continue
 			}
 
+			// todo - validate player name
 			playerName := msg[1]
 
-			log.Printf("Client %v connected: %v", addr, string(buf))
-			newPlayer := NewPlayer(w, playerName)
-			w.Players[newPlayer.ID] = &newPlayer
-			_, err = l.WriteToUDP([]byte(fmt.Sprintf("%d\n", newPlayer.ID)), addr)
-			if err != nil {
-				log.Printf("Error sending player id: %s\n", err.Error())
-			}
+			w.OnPlayerJoined(playerName, addr)
 		case "move":
 			if len(msg) != 5 {
 				log.Printf("Invalid move message: '%s' of len %v\n", string(buf), len(msg))
 				continue
 			}
+
+			
 
 			playerID, err := strconv.Atoi(msg[1])
 			if err != nil {
@@ -102,7 +124,10 @@ func (w *World) ControlLoop(l *net.UDPConn) {
 			player.Position.X = x
 			player.Position.Y = y
 
-			_ = w.OnPlayerMoved(player)
+			if err = w.OnPlayerMoved(player); err != nil {
+				log.Printf("Error moving player: %s\n", err.Error())
+				continue
+			}
 
 			log.Printf("Player %d moved to %d, %d\n", playerID, x, y)
 		default:
@@ -154,56 +179,51 @@ func (w *World) Shutdown(graceful bool) {
 			time.Sleep(15 * time.Second)
 		}
 	} else {
-		for _, p := range w.Players {
-			if p.Conn != nil {
-				p.Conn.Close()
-			}
+		for _, peer := range w.Players {
+			_, _ = w.Conn.WriteToUDP([]byte("disconnect \n"), peer.Addr)
 		}
 	}
 }
 
-func (w *World) OnPlayerJoined(p Player) error {
+func (w *World) OnPlayerJoined(name string, addr *net.UDPAddr) {
+	p := Player{
+		ID:          w.GetNextPlayerID(),
+		Name:        name,
+		Addr:        addr,
+		Position:    game_models.NewPosition(),
+		LastUpdated: time.Now(),
+
+		world: w,
+	}
+
+	w.Players[p.ID] = &p
+
+	for _, peer := range w.Players {
+		peer.OnPlayerJoined(&p)
+	}
+
+	_, err := w.Conn.WriteToUDP([]byte(fmt.Sprintf("%d \n", p.ID)), addr)
+	if err != nil {
+		log.Printf("Error sending player id: %s\n", err.Error())
+	}
+
 	log.Printf("Player %d joined the world\n", p.ID)
 
-	if w.NumPlayers >= common.MaxPlayersPerWorld {
-		return fmt.Errorf("world is currently full! (capacity %v)", common.MaxPlayersPerWorld)
-	}
-
-	if _, ok := w.Players[p.ID]; ok {
-		return nil // the player is already in the world
-	}
-
-	p.LastUpdated = time.Now()
-	w.Players[p.ID] = &p
-	w.NumPlayers++
-
-	// for _, peer := range w.Players {
-	// 	_, err := peer.Conn.Write([]byte(fmt.Sprintf("join %d %d %d\n", p.ID, p.Position.X, p.Position.Y)))
-	// 	if err != nil {
-	// 		log.Printf("Error sending player join: %s\n", err.Error())
-	// 	}
-	// }
-
-	return nil
+	p.OnTick()
 }
 
-func (w *World) OnPlayerLeft(p Player) error {
-	log.Printf("Player %d left the world\n", p.ID)
-
+func (w *World) OnPlayerLeft(p Player) {
 	if w.Players[p.ID] != nil {
 		w.NumPlayers--
 	}
 
 	delete(w.Players, p.ID)
 
-	// for _, p := range w.Players {
-	// 	_, err := p.Conn.Write([]byte(fmt.Sprintf("left %d\n", p.ID)))
-	// 	if err != nil {
-	// 		log.Printf("Error sending player left: %s\n", err.Error())
-	// 	}
-	// }
+	for _, peer := range w.Players {
+		peer.OnPlayerLeft(&p)
+	}
 
-	return nil
+	log.Printf("Player %d left the world\n", p.ID)
 }
 
 func (w *World) OnPlayerMoved(p *Player) error {
@@ -220,12 +240,11 @@ func (w *World) OnPlayerMoved(p *Player) error {
 	p.LastUpdated = time.Now()
 	w.Players[p.ID] = p
 
-	// for _, p := range w.Players {
-	// 	_, err := p.Conn.Write([]byte(fmt.Sprintf("move %d %d %d\n", p.ID, p.Position.X, p.Position.Y)))
-	// 	if err != nil {
-	// 		log.Printf("Error sending player move: %s\n", err.Error())
-	// 	}
-	// }
+	for _, peer := range w.Players {
+		peer.OnPlayerMoved(p)
+	}
+
+	p.OnTick()
 
 	return nil
 }

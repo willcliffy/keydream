@@ -31,7 +31,7 @@ function Lobby:new(o, player)
         love.graphics.getWidth() / 2 - DefaultButtonWidth / 2,
         love.graphics.getHeight() * 3 / 4 - DefaultButtonHeight / 2)
 
-        return o
+    return o
 end
 
 function Lobby:Connect(name)
@@ -88,7 +88,7 @@ function Lobby:JoinWorld(world)
     end
 
     local joinRes = cjson.decode(b)
-    self.Player:SetState(PlayerState.GAME_CONNECTING)
+    self.Player:SetState(PlayerState.WORLD_CONNECTING)
 end
 
 function Lobby:Draw()

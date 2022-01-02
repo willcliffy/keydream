@@ -1,5 +1,7 @@
 LOCAL = true
 
+MaximumWorldConnectAttempts = 5
+
 Color1 = {190 / 255, 140 / 255, 47 / 255}
 Color2 = {84 / 255, 83 / 255, 108 / 255}
 Color3 = {170 / 255, 149 / 255, 119 / 255}

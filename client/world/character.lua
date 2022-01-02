@@ -46,7 +46,7 @@ Character = {
 }
 
 function Character:new(o, x, y)
-    o = o or Character
+    o = o or {}
     setmetatable(o, self)
     self.__index = self
 
@@ -69,9 +69,6 @@ function Character:new(o, x, y)
 end
 
 function Character:Update(dt)
-    self.LastY = self.Y
-    self.LastX = self.X
-
     if love.keyboard.keysPressed["up"] and self.Y - self.Speed > 0 then
         self.Y = self.Y - self.Speed
         self.Direction = WalkingDirections.UP

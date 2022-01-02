@@ -14,10 +14,6 @@ func main() {
 	// This is here so that the world control loop begins after the lobby is ready
 	time.Sleep(3 * time.Second)
 
-	// TODO - get ID from lobby
-	var world world.World
-	world.Initialize()
-
 	localAddr, err := net.ResolveUDPAddr("udp", ":8081")
 	if err != nil {
 		log.Fatal(err)
@@ -30,9 +26,13 @@ func main() {
 	}
 	defer listener.Close()
 
+	// TODO - get ID from lobby
+	world := world.NewWorld(1, listener)
+	world.Initialize()
+
 	// TODO - handle graceful shutdown
 	go world.BroadcastLoop()
 
 	// TODO - handle graceful shutdown
-	world.ControlLoop(listener)
+	world.ControlLoop()
 }

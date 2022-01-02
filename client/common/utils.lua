@@ -30,3 +30,16 @@ function UpdateTileset(t)
 
 	t:flush()
 end
+
+function SplitString(string, delim)
+	if delim == nil then
+		delim = "%s"
+	end
+
+	local t = {}
+	for str in string.gmatch(string, "([^"..delim.."]+)") do
+		table.insert(t, str)
+	end
+
+	return t
+end

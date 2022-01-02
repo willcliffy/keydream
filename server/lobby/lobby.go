@@ -28,7 +28,7 @@ func (l *LobbyHandler) ControlLoop() {
 				s += fmt.Sprintf("\n\t%d: %s (%v)", world.ID, world.IP, world.NumPlayers)
 			}
 
-			// log.Printf("Game server list: %+v\n", s)
+			// log.Printf("World server list: %+v\n", s)
 			time.Sleep(10 * time.Second)
 		}
 	}

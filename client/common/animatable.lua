@@ -6,13 +6,13 @@ Animatable = {
     FrameDuration = 0.25,
 }
 
-function Animatable:new(o, textures)
+function Animatable:new(o, textures, frame)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
 
     o.Textures = textures or {}
-    o.Frame = love.graphics.newQuad(24, 24, 16, 16, textures[1]:getWidth(), textures[1]:getHeight())
+    o.Frame = frame or love.graphics.newQuad(24, 24, 16, 16, textures[1]:getWidth(), textures[1]:getHeight())
 
     return o
 end

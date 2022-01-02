@@ -1,5 +1,7 @@
 package common
 
+import "time"
+
 type PlayerID uint8
 
 type WorldID uint8
@@ -11,4 +13,6 @@ const (
 	MaxPlayersPerWorld = 20
 
 	MaxNumberOfWorlds uint8 = 1
+
+	PlayerTimeout = time.Second * 5
 )
