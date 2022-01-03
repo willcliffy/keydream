@@ -16,7 +16,7 @@ function love.load()
     -- todo - add text box for names
     LocalPlayer = Player:new(nil)
     LocalLobby = Lobby:new(nil, LocalPlayer)
-    LocalWorld = World:new(nil, LocalPlayer, "world.keydream.tk", 81)
+    LocalWorld = World:new(nil, LocalPlayer, "world.keydream.tk", 80)
 
     NumWorldConnectAttempts = 0
 

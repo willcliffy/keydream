@@ -37,7 +37,7 @@ function World:new(o, player, ip, port)
     self.PlayerCharacter = Character:new(nil, player.Name, CharacterType.LocalPlayer)
 
     local error
-    _, error = self.UDPConn:setpeername(self.IP, self.Port)
+    _, error = self.UDPConn:setpeername("147.182.213.89", self.Port)
     if error then
         print("Failed to connect to game server: " .. error)
         return false
