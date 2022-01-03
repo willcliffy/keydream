@@ -5,17 +5,16 @@ require("common.constants")
 
 function love.load()
     love.window.setTitle("Keydream")
-    love.graphics.setFont(love.graphics.newFont("assets/fonts/UbuntuMono-Regular.ttf", 42))
 
     -- todo - make window resizable
-    love.window.setMode(1600, 900, {
+    love.window.setMode(WindowSizeX, WindowSizeY, {
         fullscreen = false,
         resizable  = false,
         borderless = false
     })
 
     -- todo - add text box for names
-    LocalPlayer = Player:new(nil, "willcliff")
+    LocalPlayer = Player:new(nil)
     LocalLobby = Lobby:new(nil, LocalPlayer)
     LocalWorld = World:new(nil, LocalPlayer, "127.0.0.1", 8081)
 
@@ -37,7 +36,7 @@ function love.update(dt)
             LocalPlayer:SetState(PlayerState.WORLD_CONNECTED)
         end
     elseif LocalPlayer:InLobby() then
-        -- todo - add a button to refresh the list of worlds, or refresh on a timer
+        -- TODO - add a button to refresh the list of worlds, or refresh on a timer
     end
 end
 
@@ -46,6 +45,7 @@ function love.draw()
         LocalLobby:Draw()
     elseif LocalPlayer:ConnectingToWorld() then
         love.graphics.setColor(Color1)
+        love.graphics.setFont(MediumFont)
         love.graphics.print("Connecting to world...", 0, 0)
     elseif LocalPlayer:InWorld() then
         LocalWorld:Draw()
@@ -56,12 +56,21 @@ function love.mousepressed(x, y, button, istouch, presses)
     if LocalPlayer:InLobby() then
         LocalLobby:mousepressed(x, y, button, istouch, presses)
     elseif LocalPlayer:InWorld() then
-        LocalWorld:mousepressed(x, y, button, istouch, presses)
+        -- TODO - nothing in the world is clickable yet
+        -- LocalWorld:mousepressed(x, y, button, istouch, presses)
     end
 end
 
 function love.keypressed(key)
     love.keyboard.keysPressed[key] = true
+    if LocalPlayer:InLobby() then
+        if key == "return" then
+            LocalPlayer:SetName(LocalLobby.NameInput.Text)
+            LocalLobby:Connect()
+        else
+            LocalLobby:keypressed(key)
+        end
+    end
 end
 
 function love.keyreleased(key)

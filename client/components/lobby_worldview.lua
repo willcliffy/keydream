@@ -21,6 +21,7 @@ function WorldView:new(o, world)
 end
 
 function WorldView:Draw(y)
+    love.graphics.setFont(LargeFont)
     self.Y = y
 
     love.graphics.setColor(self.Color)
@@ -30,12 +31,12 @@ function WorldView:Draw(y)
     love.graphics.printf(
         "world " .. self.World.id,
         self.X + DefaultButtonWidth / 4,
-        self.Y,
+        self.Y + DefaultButtonHeight / 4,
         800)
     love.graphics.printf(
         self.World.num_players .. "/20 players",
         2 * self.X + DefaultButtonWidth / 4,
-        self.Y,
+        self.Y + DefaultButtonHeight / 4,
         800)
 end
 

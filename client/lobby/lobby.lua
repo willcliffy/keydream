@@ -5,11 +5,15 @@ require("components.button")
 require("common.constants")
 require("common.utils")
 require("components.lobby_worldview")
+require("components.lobby_nameinput")
 
 Lobby = {
+    Background = nil,
+
     Player = {},
 
     ConnectButton = nil,
+    NameInput = nil,
     BackButton = nil,
 
     Worlds = {},
@@ -31,10 +35,14 @@ function Lobby:new(o, player)
         love.graphics.getWidth() / 2 - DefaultButtonWidth / 2,
         love.graphics.getHeight() * 3 / 4 - DefaultButtonHeight / 2)
 
+    self.NameInput = NameInput:new(nil)
+
+    self.Background = Background:new()
+
     return o
 end
 
-function Lobby:Connect(name)
+function Lobby:Connect()
     local url
     if LOCAL then
         url = "http://localhost:8080/api/v1/connect"
@@ -46,7 +54,7 @@ function Lobby:Connect(name)
         url,
         [[
             {
-                "name":"]]..name..[["
+                "name":"]]..self.Player.Name..[["
             }
         ]])
 
@@ -93,10 +101,12 @@ end
 
 function Lobby:Draw()
     if self.Player.State == PlayerState.LOBBY_CONNECTED then
+        self.Background:Draw()
+        love.graphics.setFont(BigFont)
         love.graphics.setColor(Color1)
-        love.graphics.printf("Connected!", 1, 1, 800)
+        love.graphics.printf("Connected to lobby as "..self.Player.Name, 1, 1, 800)
 
-        local y = love.graphics.getHeight() / 4
+        local y = love.graphics.getHeight() / 6
         for _, v in pairs(self.WorldViews) do
             v:Draw(y)
             y = y + 100
@@ -104,6 +114,11 @@ function Lobby:Draw()
 
         Lobby.BackButton:Draw()
     elseif self.Player.State == PlayerState.LOBBY_DISCONNECTED then
+        self.Background:Draw()
+        love.graphics.setFont(HugeFont)
+        -- TODO - properly center things
+        love.graphics.printf("Keydream", 10.2 * TileSizeScaled, 4 * TileSizeScaled, 800)
+        Lobby.NameInput:Draw()
         Lobby.ConnectButton:Draw()
     end
 end
@@ -112,7 +127,6 @@ function Lobby:mousepressed(x, y, button, istouch, presses)
     if self.Player.State == PlayerState.LOBBY_CONNECTED then
         for k, v in pairs(self.WorldViews) do
             if v:IsButtonPressed(x, y) then
-                RPrint(v.World)
                 self:JoinWorld(v.World)
                 return
             end
@@ -124,8 +138,24 @@ function Lobby:mousepressed(x, y, button, istouch, presses)
             self.Player:SetState(PlayerState.LOBBY_DISCONNECTED)
         end
     elseif LocalPlayer.State == PlayerState.LOBBY_DISCONNECTED then
-        if self.ConnectButton:IsButtonPressed(x, y) then
-            self:Connect(LocalPlayer.Name)
+        if self.ConnectButton:IsButtonPressed(x, y) and self.NameInput.Text ~= "" then
+            LocalPlayer:SetName(self.NameInput.Text)
+            self:Connect()
+        end
+    end
+end
+
+function Lobby:keypressed(key)
+    if key == "escape" then
+        self.Worlds = {}
+        self.WorldViews = {}
+        self.Player:SetState(PlayerState.LOBBY_DISCONNECTED)
+    elseif Player.State == PlayerState.LOBBY_DISCONNECTED then
+        if key == "return" and self.NameInput.Text ~= "" then
+            LocalPlayer:SetName(self.NameInput.Text)
+            self:Connect()
+        else
+            self.NameInput:keypressed(key)
         end
     end
 end

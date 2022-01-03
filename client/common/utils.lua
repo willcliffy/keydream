@@ -43,3 +43,14 @@ function SplitString(string, delim)
 
 	return t
 end
+
+function TestMap(x, y)
+    local map = {}
+    for i = 1, x do
+        map[i] = {}
+        for j = 1, y do
+            map[i][j] = math.random(10)
+        end
+    end
+    return map
+end

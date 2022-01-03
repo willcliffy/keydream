@@ -16,7 +16,6 @@ import (
 type World struct {
 	ID         common.WorldID
 	Players    map[common.PlayerID]*Player
-	NumPlayers int
 	Conn       *net.UDPConn
 }
 
@@ -24,7 +23,6 @@ func NewWorld(id common.WorldID, udpConn *net.UDPConn) *World {
 	return &World{
 		ID:         id,
 		Players:    make(map[common.PlayerID]*Player),
-		NumPlayers: 0,
 		Conn:       udpConn,
 	}
 }
@@ -78,7 +76,7 @@ func (w *World) ControlLoop() {
 				continue
 			}
 
-			if w.NumPlayers >= common.MaxPlayersPerWorld {
+			if len(w.Players) >= common.MaxPlayersPerWorld {
 				log.Printf("World is full!\n")
 				time.Sleep(10 * time.Second)
 				continue
@@ -129,7 +127,8 @@ func (w *World) ControlLoop() {
 				continue
 			}
 
-			log.Printf("Player %d moved to %d, %d\n", playerID, x, y)
+			// way too loud
+			// log.Printf("Player %d moved to %d, %d\n", playerID, x, y)
 		default:
 			log.Printf("Unknown message: '%v'", msg[0])
 			continue
@@ -138,15 +137,24 @@ func (w *World) ControlLoop() {
 }
 
 func (w *World) BroadcastLoop() {
+	// Temp for testing
 	hostname, _ := os.Hostname()
 
 	var failCount uint8
 	for {
+		// we purge timed out players every time we broadcast to lobby
+		for _, p := range w.Players {
+			if time.Since(p.LastUpdated) > common.PlayerTimeout {
+				log.Println("Player timed out: ", p.ID)
+				w.OnPlayerLeft(*p)
+			}
+		}
+
 		// TODO - configure ID, IP. for now, hardcode world 1 and assume no other game servers.
 		err := game_models.BroadcastWorld(game_models.WorldBroadcast{
 			ID:         1,
 			IP:         hostname,
-			NumPlayers: w.NumPlayers,
+			NumPlayers: len(w.Players),
 		})
 
 		if err != nil {
@@ -172,7 +180,7 @@ func (w *World) Initialize() {
 func (w *World) Shutdown(graceful bool) {
 	if graceful {
 		for {
-			if w.NumPlayers == 0 {
+			if len(w.Players) == 0 {
 				break
 			}
 
@@ -199,7 +207,10 @@ func (w *World) OnPlayerJoined(name string, addr *net.UDPAddr) {
 	w.Players[p.ID] = &p
 
 	for _, peer := range w.Players {
-		peer.OnPlayerJoined(&p)
+		if peer.ID != p.ID {
+			peer.OnPlayerJoined(&p)
+			p.OnPlayerJoined(peer)
+		}
 	}
 
 	_, err := w.Conn.WriteToUDP([]byte(fmt.Sprintf("%d \n", p.ID)), addr)
@@ -207,16 +218,12 @@ func (w *World) OnPlayerJoined(name string, addr *net.UDPAddr) {
 		log.Printf("Error sending player id: %s\n", err.Error())
 	}
 
-	log.Printf("Player %d joined the world\n", p.ID)
 
+	log.Printf("Player %d joined the world\n", p.ID)
 	p.OnTick()
 }
 
 func (w *World) OnPlayerLeft(p Player) {
-	if w.Players[p.ID] != nil {
-		w.NumPlayers--
-	}
-
 	delete(w.Players, p.ID)
 
 	for _, peer := range w.Players {

@@ -14,10 +14,10 @@ function Button:new(o, x, y, w, h, text, color, textColor)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    o.X = x
-    o.Y = y
-    o.Width = w
-    o.Height = h
+    o.X = x or 0
+    o.Y = y or 0
+    o.Width = w or DefaultButtonWidth
+    o.Height = h or DefaultButtonWidth
     o.Text = text
     o.Color = color or {1, 1, 1}
     o.TextColor = textColor or {0, 0, 0}
@@ -25,11 +25,11 @@ function Button:new(o, x, y, w, h, text, color, textColor)
 end
 
 function Button:newConnectButton(o, x, y)
-    return Button:new(o, x, y, 250, 75, "Connect", Color3, Color5)
+    return Button:new(o, x, y, DefaultButtonWidth, DefaultButtonHeight, "Connect", Color3, Color5)
 end
 
 function Button:newBackButton(o, x, y)
-    return Button:new(o, x, y, 250, 75, " Back  ", Color3, Color5)
+    return Button:new(o, x, y, DefaultButtonWidth, DefaultButtonHeight, " Back ", Color3, Color5)
 end
 
 function Button:Draw()
@@ -37,7 +37,8 @@ function Button:Draw()
     love.graphics.rectangle('fill', self.X, self.Y, self.Width, self.Height)
     love.graphics.setColor(self.TextColor)
     -- todo - center text in button
-    love.graphics.print(self.Text, self.X + 50, self.Y + 13)
+    love.graphics.setFont(BigFont)
+    love.graphics.print(self.Text, self.X + 60, self.Y + 20)
 end
 
 function Button:IsButtonPressed(x, y)

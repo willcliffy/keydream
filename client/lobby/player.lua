@@ -15,7 +15,7 @@ function Player:new(o, name)
     o = o or {}
     setmetatable(o, self)
     self.__index = self
-    o.Name = name
+    o.Name = name or ""
     return o
 end
 
@@ -31,6 +31,11 @@ function Player:SetState(state)
     else
         print("Invalid player state: " .. state)
     end
+end
+
+function Player:SetName(name)
+    self.Name = name
+    print("Player name set to: " .. name)
 end
 
 function Player:InLobby()

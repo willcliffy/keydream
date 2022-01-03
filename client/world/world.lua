@@ -1,9 +1,10 @@
 local socket = require("socket")
-local coroutine = require("coroutine")
 
 require("world.background")
 require("world.character")
+require("world.character_remote")
 require("common.utils")
+require("common.constants")
 
 World = {
     IP = "",
@@ -20,7 +21,6 @@ World = {
     Connected = false,
 
     TimeSinceLastTick = 0,
-    TickDuration = 0.15,
 }
 
 function World:new(o, player, ip, port)
@@ -34,7 +34,7 @@ function World:new(o, player, ip, port)
     self.UDPConn:settimeout(5)
 
     self.Background = Background:new()
-    self.PlayerCharacter = Character:new(nil, 0, 0)
+    self.PlayerCharacter = Character:new(nil, player.Name, CharacterType.LocalPlayer)
 
     local error
     _, error = self.UDPConn:setpeername(self.IP, self.Port)
@@ -69,24 +69,27 @@ function World:Connect()
         return false
     end
 
-    self.UDPConn:settimeout(0.01)
+    self.UDPConn:settimeout(0.005)
     self.Player.ID = tonumber(data)
     self.Connected = true
 
-
-    print("..self.Player.ID .. " .. self.Player.ID)
+    self:Tick()
+    -- print("..self.Player.ID .. " .. self.Player.ID)
     return true
 end
 
 function World:Update(dt)
     if self.Connected then
+        self.TimeSinceLastTick = self.TimeSinceLastTick + dt
+        if self.TimeSinceLastTick >= TickDuration then
+            self.TimeSinceLastTick = self.TimeSinceLastTick - TickDuration
+            self:Tick(dt)
+        end
+
         self.Background:Update()
         self.PlayerCharacter:Update(dt)
-        self.TimeSinceLastTick = self.TimeSinceLastTick + dt
-
-        if self.TimeSinceLastTick >= self.TickDuration then
-            self.TimeSinceLastTick = self.TimeSinceLastTick - self.TickDuration
-            self:Tick(dt)
+        for _, character in pairs(self.OtherCharacters) do
+            RemoteCharacter.Update(character, dt)
         end
     end
 end
@@ -106,12 +109,14 @@ function World:Tick(dt)
     end
 
     repeat
-        print("Waiting for response...")
         local data, msg = self.UDPConn:receive()
 
         if data then
-            print("Received: " .. (data or "") .. " " .. (msg or ""))
+            --print("Received: " .. (data or "") .. " " .. (msg or ""))
             self:OnMessageReceived(data)
+        else
+            -- this gets a bit noisy:
+            --print("No data received: " .. (msg or ""))
         end
     until not data
 end
@@ -125,10 +130,6 @@ function World:Draw()
     end
 end
 
-function World:mousepressed(x, y, button, istouch, presses)
-    -- right now, nothing is clickable
-end
-
 function World:OnMessageReceived(messageString)
     local msg = SplitString(messageString, " ")
 
@@ -137,8 +138,6 @@ function World:OnMessageReceived(messageString)
         local x = tonumber(msg[3])
         local y = tonumber(msg[4])
 
-        print("move id: " .. id .. " x: " .. x .. " y: " .. y)
-
         if id == self.Player.ID then
             if math.abs(self.PlayerCharacter.X - x) > 100 or math.abs(self.PlayerCharacter.Y - y) > 100 then
                 -- TODO - if in debug mode, show a shadow where the server says the player should be
@@ -146,18 +145,17 @@ function World:OnMessageReceived(messageString)
         else
             local character = self.OtherCharacters[id]
             if character == nil then
-                character = Character:new(nil, x, y)
-                self.OtherCharacters[id] = character
+                print("Received move for character " .. id .. " but I don't know about them")
+                self.OtherCharacters[id] = RemoteCharacter:new(nil, id)
             else
-                character.X = x
-                character.Y = y
+                character:OnMove(x, y)
             end
         end
     elseif msg[1] == "join" then
         local id = tonumber(msg[2])
         local name = msg[3]
 
-        print("join id: " .. (id or "") .. " name: " .. (name or ""))
+        print("join. id: " .. (id or "") .. ", name: " .. (name or ""))
 
         if id == self.Player.ID then
             self.PlayerCharacter.Name = name
@@ -165,15 +163,26 @@ function World:OnMessageReceived(messageString)
         else
             local character = self.OtherCharacters[id]
             if character == nil then
-                character = Character:new(nil, 0, 0)
-                self.OtherCharacters[id] = character
+                print("New character: " .. name)
+                self.OtherCharacters[id] = RemoteCharacter:new(nil, name)
+            else
+                character:OnJoin()
             end
-
-            character.Name = name
         end
-    elseif msg[1] == "tock" then
-        print("Tock")
-    else
+    elseif msg[1] == "left" then
+        local id = tonumber(msg[2])
+
+        print("left. id: " .. (id or ""))
+
+        if id == self.Player.ID then
+            print("Player left")
+        else
+            local character = self.OtherCharacters[id]
+            if character ~= nil then
+                self.OtherCharacters[id] = nil
+            end
+        end
+    elseif msg[1] ~= "tock" then
         print("Unknown message: " .. messageString)
     end
 end
