@@ -27,4 +27,3 @@ func (g *KeydreamGame) Update() error {
 func (g *KeydreamGame) Draw(screen *ebiten.Image) {
 	
 }
-
