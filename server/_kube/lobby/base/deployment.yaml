@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploy-keydream-lobby
+  namespace: keydream-lobby
+  labels:
+    app: keydream-lobby
+spec:
+  selector:
+    matchLabels:
+      app: keydream-lobby
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: keydream-lobby
+    spec:
+      containers:
+      - name: keydream-lobby
+        image: devcliff/keydream-lobby
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+      imagePullSecrets:
+      - name: docker-reg

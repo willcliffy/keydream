@@ -14,7 +14,7 @@ func main() {
 	// This is here so that the world control loop begins after the lobby is ready
 	time.Sleep(3 * time.Second)
 
-	localAddr, err := net.ResolveUDPAddr("udp", ":8081")
+	localAddr, err := net.ResolveUDPAddr("udp", ":80")
 	if err != nil {
 		log.Fatal(err)
 	}

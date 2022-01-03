@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: keydream-world-service
+  namespace: keydream-world
+spec:
+  type: ClusterIP
+  selector:
+    app: keydream-world
+  ports:
+    - protocol: UDP
+      name: udp
+      port: 81
+      targetPort: 80
