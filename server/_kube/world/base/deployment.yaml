@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deploy-keydream-world
-  namespace: keydream-world
+  namespace: keydream
   labels:
-    app: keydream-world
+    app: keydream
 spec:
   selector:
     matchLabels:
-      app: keydream-world
+      app: keydream
   replicas: 1
   strategy:
     type: RollingUpdate
@@ -18,12 +18,17 @@ spec:
   template:
     metadata:
       labels:
-        app: keydream-world
+        app: keydream
     spec:
       containers:
       - name: keydream-world
         image: devcliff/keydream-world
         imagePullPolicy: Always
+        ports:
+        - protocol: UDP
+          name: udp
+          containerPort: 80
+          hostPort: 81
         resources:
           requests:
             memory: "64Mi"
@@ -32,4 +37,4 @@ spec:
             memory: "256Mi"
             cpu: "500m"
       imagePullSecrets:
-      - name: docker-reg
+      - name: docker-registry-credentials

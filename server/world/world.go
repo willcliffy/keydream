@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -137,9 +136,6 @@ func (w *World) ControlLoop() {
 }
 
 func (w *World) BroadcastLoop() {
-	// Temp for testing
-	hostname, _ := os.Hostname()
-
 	var failCount uint8
 	for {
 		// we purge timed out players every time we broadcast to lobby
@@ -153,7 +149,7 @@ func (w *World) BroadcastLoop() {
 		// TODO - configure ID, IP. for now, hardcode world 1 and assume no other game servers.
 		err := game_models.BroadcastWorld(game_models.WorldBroadcast{
 			ID:         1,
-			IP:         hostname,
+			IP:         "world.keydream.tk",
 			NumPlayers: len(w.Players),
 		})
 

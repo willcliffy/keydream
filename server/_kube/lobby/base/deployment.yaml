@@ -2,13 +2,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: deploy-keydream-lobby
-  namespace: keydream-lobby
+  namespace: keydream
   labels:
-    app: keydream-lobby
+    app: keydream
 spec:
   selector:
     matchLabels:
-      app: keydream-lobby
+      app: keydream
   replicas: 1
   strategy:
     type: RollingUpdate
@@ -18,7 +18,7 @@ spec:
   template:
     metadata:
       labels:
-        app: keydream-lobby
+        app: keydream
     spec:
       containers:
       - name: keydream-lobby
@@ -32,4 +32,4 @@ spec:
             memory: "256Mi"
             cpu: "500m"
       imagePullSecrets:
-      - name: docker-reg
+      - name: docker-registry-credentials

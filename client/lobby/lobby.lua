@@ -45,7 +45,7 @@ end
 function Lobby:Connect()
     local url
     if LOCAL then
-        url = "http://localhost:8080/api/v1/connect"
+        url = LocalLobbyURL
     else
         url = "http://lobby.keydream.tk/api/v1/connect"
     end
@@ -76,7 +76,7 @@ end
 function Lobby:JoinWorld(world)
     local url
     if LOCAL then
-        url = "http://localhost:8080/api/v1/join"
+        url = LocalLobbyURL
     else
         url = "http://lobby.keydream.tk/api/v1/join"
     end

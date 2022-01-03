@@ -1,4 +1,4 @@
-LOCAL = true
+LOCAL = false
 
 HugeFont   = love.graphics.newFont("assets/fonts/lunchds.ttf", 64)
 LargeFont  = love.graphics.newFont("assets/fonts/lunchds.ttf", 48)
