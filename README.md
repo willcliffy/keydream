@@ -3,17 +3,11 @@
 Playing around with Lua and LÖVE.
 
 ## Playing
-### Windows
-Download `Keydream.exe` and open it.
+At the moment, you must have LÖVE installed to play. Someday soon I'll be able to make executables.
 
-### Linux
-You will first need to download and install LÖVE. See the [LÖVE website](http://love2d.org/).
-Download `Keydream.love`, then run it with `love Keydream.love`.
+Download the `keydream.love` file from Releases, navigate to the directory where it was downloaded and execute `love keydream.love`
 
-### macOS
-
-
-### From Source
+## Development
 - Build-from-source instructions coming soon.
 
 ## Screenshots
