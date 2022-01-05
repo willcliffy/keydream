@@ -1,4 +1,4 @@
-package game
+package models
 
 type State int
 
