@@ -11,14 +11,16 @@ import (
 
 type Title struct {
 	TitleFont font.Face
+	Background *Background
 
 	TextBox string
 	ConnectButton string
 }
 
-func NewTitle(titleFont font.Face) *Title {
+func NewTitle(titleFont font.Face, background *Background) *Title {
 	return &Title{
 		TitleFont: titleFont,
+		Background: background,
 	}
 }
 
@@ -27,6 +29,7 @@ func (this *Title) Update() (models.State, error) {
 }
 
 func (this *Title) Draw(screen *ebiten.Image) {
+	this.Background.Draw(screen)
 	text.Draw(screen, "Keydream", this.TitleFont, 100, 100, color.White)
 }
 

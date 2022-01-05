@@ -16,8 +16,13 @@ func main() {
 		log.Fatal(err)
 	}
 
+	background, err := views.NewBackground()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	views := map[models.State]views.View{
-		models.State_Disconnected:    views.NewTitle(gameFonts[game.FontSizeLarge]),
+		models.State_Disconnected:    views.NewTitle(gameFonts[game.FontSizeLarge], background),
 		models.State_LobbyConnected:  views.NewLobby(),
 		models.State_WorldConnecting: views.NewLoading(),
 		models.State_WorldConnected:  views.NewWorld(),
