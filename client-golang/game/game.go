@@ -5,13 +5,8 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/willcliffy/keydream/client/models"
+	"github.com/willcliffy/keydream/client/utils"
 	"github.com/willcliffy/keydream/client/views"
-)
-
-// todo - this shouldnt be hardcoded eventually
-const (
-	ScreenWidth  = 640
-	ScreenHeight = 480
 )
 
 type KeydreamGame struct {
@@ -32,7 +27,7 @@ func NewGame(views map[models.State]views.View) (*KeydreamGame, error) {
 }
 
 func (g *KeydreamGame) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return ScreenWidth, ScreenHeight
+	return utils.ScreenWidth, utils.ScreenHeight
 }
 
 func (g *KeydreamGame) Update() error {

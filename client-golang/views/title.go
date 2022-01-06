@@ -6,6 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/willcliffy/keydream/client/models"
+	"github.com/willcliffy/keydream/client/utils"
 	"golang.org/x/image/font"
 )
 
@@ -30,7 +31,7 @@ func (this *Title) Update() (models.State, error) {
 
 func (this *Title) Draw(screen *ebiten.Image) {
 	this.Background.Draw(screen)
-	text.Draw(screen, "Keydream", this.TitleFont, 100, 100, color.White)
+	text.Draw(screen, "Keydream", this.TitleFont, utils.ScreenWidth/3, utils.ScreenHeight/3, color.White)
 }
 
 func (this *Title) HandleInput() {
