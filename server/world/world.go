@@ -8,21 +8,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/willcliffy/keydream-server/common"
-	game_models "github.com/willcliffy/keydream-server/world/models"
+	"github.com/willcliffy/keydream/server/common"
+	game_models "github.com/willcliffy/keydream/server/world/models"
 )
 
 type World struct {
-	ID         common.WorldID
-	Players    map[common.PlayerID]*Player
-	Conn       *net.UDPConn
+	ID      common.WorldID
+	Players map[common.PlayerID]*Player
+	Conn    *net.UDPConn
 }
 
 func NewWorld(id common.WorldID, udpConn *net.UDPConn) *World {
 	return &World{
-		ID:         id,
-		Players:    make(map[common.PlayerID]*Player),
-		Conn:       udpConn,
+		ID:      id,
+		Players: make(map[common.PlayerID]*Player),
+		Conn:    udpConn,
 	}
 }
 
@@ -90,8 +90,6 @@ func (w *World) ControlLoop() {
 				log.Printf("Invalid move message: '%s' of len %v\n", string(buf), len(msg))
 				continue
 			}
-
-			
 
 			playerID, err := strconv.Atoi(msg[1])
 			if err != nil {
@@ -213,7 +211,6 @@ func (w *World) OnPlayerJoined(name string, addr *net.UDPAddr) {
 	if err != nil {
 		log.Printf("Error sending player id: %s\n", err.Error())
 	}
-
 
 	log.Printf("Player %d joined the world\n", p.ID)
 	p.OnTick()

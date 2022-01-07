@@ -9,9 +9,9 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/willcliffy/keydream-server/common"
-	game_models "github.com/willcliffy/keydream-server/world/models"
-	"github.com/willcliffy/keydream-server/lobby"
+	"github.com/willcliffy/keydream/server/common"
+	"github.com/willcliffy/keydream/server/lobby"
+	game_models "github.com/willcliffy/keydream/server/world/models"
 )
 
 func main() {

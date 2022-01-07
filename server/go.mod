@@ -1,4 +1,4 @@
-module github.com/willcliffy/keydream-server
+module github.com/willcliffy/keydream/server
 
 go 1.17
 

@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/willcliffy/keydream-server/world"
+	"github.com/willcliffy/keydream/server/world"
 )
 
 func main() {

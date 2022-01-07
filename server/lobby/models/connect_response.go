@@ -1,7 +1,7 @@
 package lobby_models
 
 import (
-	game_models "github.com/willcliffy/keydream-server/world/models"
+	game_models "github.com/willcliffy/keydream/server/world/models"
 )
 
 type ConnectResponse struct {

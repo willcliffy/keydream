@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/willcliffy/keydream-server/common"
+	"github.com/willcliffy/keydream/server/common"
 )
 
 type WorldBroadcast struct {

@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/willcliffy/keydream-server/common"
-	lobby_models "github.com/willcliffy/keydream-server/lobby/models"
+	"github.com/willcliffy/keydream/server/common"
+	lobby_models "github.com/willcliffy/keydream/server/lobby/models"
 )
 
 func (l *LobbyHandler) ConnectHandler(w http.ResponseWriter, r *http.Request) {

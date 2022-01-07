@@ -6,8 +6,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/willcliffy/keydream-server/common"
-	game_models "github.com/willcliffy/keydream-server/world/models"
+	"github.com/willcliffy/keydream/server/common"
+	game_models "github.com/willcliffy/keydream/server/world/models"
 )
 
 type Player struct {
