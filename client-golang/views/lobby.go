@@ -5,14 +5,18 @@ import (
 	"github.com/willcliffy/keydream/client/models"
 )
 
-type Lobby struct {}
+type Lobby struct {
+	State models.State
+}
 
 func NewLobby() *Lobby {
-	return &Lobby{}
+	return &Lobby{
+		State: models.State_LobbyConnecting,
+	}
 }
 
 func (this *Lobby) Update() (models.State, error) {
-	return models.State_LobbyConnected, nil
+	return this.State, nil
 }
 
 func (this *Lobby) Draw(screen *ebiten.Image) {

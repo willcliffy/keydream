@@ -1,4 +1,4 @@
-package game
+package models
 
 import (
 	"github.com/willcliffy/keydream/client/assets/fonts"

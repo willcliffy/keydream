@@ -89,9 +89,11 @@ func (this *Background) Draw(screen *ebiten.Image) {
 		for y := 0; y < utils.ScreenHeightInTiles; y++ {
 			op := &ebiten.DrawImageOptions{}
 			op.GeoM.Translate(float64(x * utils.TileSize), float64(y * utils.TileSize))
+
 			// This is only necessary because I have an enormous screen.
 			// todo - One day I'll make a settings menu and make this a setting.
 			op.GeoM.Scale(2, 2)
+			
 			screen.DrawImage(this.Tiles[0], op)
 		}
 	}

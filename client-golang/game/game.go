@@ -15,13 +15,34 @@ type KeydreamGame struct {
 	views map[models.State]views.View
 }
 
-func NewGame(views map[models.State]views.View) (*KeydreamGame, error) {
-	game := &KeydreamGame{
-		currentState: models.State_Disconnected,
-		views: views,
+func NewGame() (*KeydreamGame, error) {
+	gameFonts, err := models.LoadFonts()
+	if err != nil {
+		return nil, err
 	}
 
-	game.setState(models.State_Disconnected)
+	background, err := views.NewBackground()
+	if err != nil {
+		return nil, err
+	}
+
+	game := &KeydreamGame{
+		currentState: models.State_LobbyDisconnected,
+	}
+
+	title := views.NewTitleScreen(gameFonts, background)
+	lobby := views.NewLobby()
+	world := views.NewWorld()
+
+	game.views = map[models.State]views.View{
+		models.State_LobbyDisconnected: title,
+		models.State_LobbyConnecting:   lobby,
+		models.State_LobbyConnected:    lobby,
+		models.State_WorldConnecting:   world,
+		models.State_WorldConnected:    world,
+	}
+
+	game.setState(models.State_LobbyDisconnected)
 
 	return game, nil
 }
