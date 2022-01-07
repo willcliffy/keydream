@@ -6,7 +6,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/willcliffy/keydream/client/models"
+	"github.com/willcliffy/keydream/client/common/models"
 	"golang.org/x/image/font"
 )
 

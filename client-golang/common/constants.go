@@ -1,4 +1,4 @@
-package utils
+package common
 
 const (
 	TileSize = 16

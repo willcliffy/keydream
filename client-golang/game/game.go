@@ -4,15 +4,17 @@ import (
 	"fmt"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/willcliffy/keydream/client/models"
-	"github.com/willcliffy/keydream/client/utils"
-	"github.com/willcliffy/keydream/client/views"
+	"github.com/willcliffy/keydream/client/common"
+	"github.com/willcliffy/keydream/client/common/models"
+	"github.com/willcliffy/keydream/client/common/views"
+	"github.com/willcliffy/keydream/client/lobby"
+	"github.com/willcliffy/keydream/client/world"
 )
 
 type KeydreamGame struct {
 	currentState models.State
-	currentView views.View
-	views map[models.State]views.View
+	currentView common.View
+	views map[models.State]common.View
 }
 
 func NewGame() (*KeydreamGame, error) {
@@ -21,7 +23,7 @@ func NewGame() (*KeydreamGame, error) {
 		return nil, err
 	}
 
-	background, err := views.NewBackground()
+	tileset, err := views.NewTileset()
 	if err != nil {
 		return nil, err
 	}
@@ -30,11 +32,11 @@ func NewGame() (*KeydreamGame, error) {
 		currentState: models.State_LobbyDisconnected,
 	}
 
-	title := views.NewTitleScreen(gameFonts, background)
-	lobby := views.NewLobby()
-	world := views.NewWorld()
+	title := lobby.NewTitleScreen(gameFonts, tileset)
+	lobby := lobby.NewLobby(gameFonts, tileset)
+	world := world.NewWorld()
 
-	game.views = map[models.State]views.View{
+	game.views = map[models.State]common.View{
 		models.State_LobbyDisconnected: title,
 		models.State_LobbyConnecting:   lobby,
 		models.State_LobbyConnected:    lobby,
@@ -48,7 +50,7 @@ func NewGame() (*KeydreamGame, error) {
 }
 
 func (g *KeydreamGame) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return utils.ScreenWidth, utils.ScreenHeight
+	return common.ScreenWidth, common.ScreenHeight
 }
 
 func (g *KeydreamGame) Update() error {

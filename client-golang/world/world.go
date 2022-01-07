@@ -1,8 +1,8 @@
-package views
+package world
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/willcliffy/keydream/client/models"
+	"github.com/willcliffy/keydream/client/common/models"
 )
 
 type World struct {}
