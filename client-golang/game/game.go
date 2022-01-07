@@ -13,8 +13,8 @@ import (
 
 type KeydreamGame struct {
 	currentState models.State
-	currentView common.View
-	views map[models.State]common.View
+	currentView common.KeydreamView
+	views map[models.State]common.KeydreamView
 }
 
 func NewGame() (*KeydreamGame, error) {
@@ -32,11 +32,13 @@ func NewGame() (*KeydreamGame, error) {
 		currentState: models.State_LobbyDisconnected,
 	}
 
-	title := lobby.NewTitleScreen(gameFonts, tileset)
-	lobby := lobby.NewLobby(gameFonts, tileset)
-	world := world.NewWorld()
+	player := &common.Player{}
 
-	game.views = map[models.State]common.View{
+	title := lobby.NewTitleScreen(player, gameFonts, tileset)
+	lobby := lobby.NewLobby(player, "http://lobby.keydream.tk", gameFonts, tileset)
+	world := world.NewWorld(player)
+
+	game.views = map[models.State]common.KeydreamView{
 		models.State_LobbyDisconnected: title,
 		models.State_LobbyConnecting:   lobby,
 		models.State_LobbyConnected:    lobby,

@@ -30,6 +30,8 @@ func NewConnectButton(fonts map[models.FontSize]font.Face) *views.Button {
 }
 
 type Title struct {
+	Player *common.Player
+
 	TitleFont font.Face
 	Tileset *views.Tileset
 
@@ -37,8 +39,9 @@ type Title struct {
 	ConnectButton *views.Button
 }
 
-func NewTitleScreen(fonts map[models.FontSize]font.Face, tileset *views.Tileset) *Title {
+func NewTitleScreen(player *common.Player, fonts map[models.FontSize]font.Face, tileset *views.Tileset) *Title {
 	return &Title{
+		Player: player,
 		TitleFont: fonts[models.FontSizeLarge],
 		Tileset: tileset,
 		ConnectButton: NewConnectButton(fonts),
@@ -53,9 +56,11 @@ func (this *Title) Update() (models.State, error) {
 
 	if len(this.NameInput.TextBox) > 0 {
 		if inpututil.IsKeyJustPressed(ebiten.KeyEnter) {
+			this.Player.Name = this.NameInput.TextBox
 			return models.State_LobbyConnecting, nil
 		} else if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) &&
 			this.ConnectButton.IsMouseOver(ebiten.CursorPosition()) {
+			this.Player.Name = this.NameInput.TextBox
 			return models.State_LobbyConnecting, nil
 		}
 	}

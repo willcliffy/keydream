@@ -5,8 +5,7 @@ import (
 	"github.com/willcliffy/keydream/client/common/models"
 )
 
-type View interface {
-	//Layout(outsideWidth, outsideHeight int) (int, int)
+type KeydreamView interface {
 	Update() (models.State, error)
 	Draw(screen *ebiten.Image)
 }

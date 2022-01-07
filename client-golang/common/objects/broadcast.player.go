@@ -1,0 +1,7 @@
+package objects
+
+// TODO - ????????
+type PlayerBroadcast struct {
+	
+}
+

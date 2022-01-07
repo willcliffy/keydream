@@ -2,12 +2,13 @@ package world
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/willcliffy/keydream/client/common"
 	"github.com/willcliffy/keydream/client/common/models"
 )
 
 type World struct {}
 
-func NewWorld() *World {
+func NewWorld(player *common.Player) *World {
 	return &World{}
 }
 
