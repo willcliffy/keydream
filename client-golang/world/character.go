@@ -167,4 +167,3 @@ func (c *Character) WalkInDirection(direction objects.CharacterDirection) {
 		c.Y += constants.LocalCharacterWalkSpeed
 	}
 }
-

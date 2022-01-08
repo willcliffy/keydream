@@ -9,7 +9,6 @@ import (
 	"github.com/willcliffy/keydream/client/common/models"
 	"github.com/willcliffy/keydream/client/common/objects"
 	"github.com/willcliffy/keydream/client/common/views"
-	"golang.org/x/image/font"
 )
 
 type World struct {
@@ -21,7 +20,7 @@ type World struct {
 	conn *net.UDPConn
 }
 
-func NewWorld(player *common.Player, baseUrl string, fonts map[models.FontSize]font.Face, tileset *views.Tileset) *World {
+func NewWorld(player *common.Player, baseUrl string, tileset *views.Tileset) *World {
 	return &World{
 		State: models.State_WorldConnecting,
 		BaseURL: baseUrl,
@@ -34,10 +33,13 @@ func (this *World) Update() (models.State, error) {
 	if this.State == models.State_WorldConnecting {
 		if err := this.Connect(); err != nil {
 			return models.State_LobbyConnected, err
+		} else {
+			return models.State_WorldConnected, nil
 		}
+	} else if this.State == models.State_WorldConnected {
+		this.Character.Update()
+		return models.State_WorldConnected, nil
 	}
-
-	this.Character.Update()
 
 	return this.State, nil
 }

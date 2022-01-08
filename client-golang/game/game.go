@@ -18,7 +18,10 @@ type KeydreamGame struct {
 	views map[models.State]common.KeydreamView
 }
 
-func NewGame() (*KeydreamGame, error) {
+func NewGame(
+	LobbyBaseURL string,
+	WorldBaseURL string,
+) (*KeydreamGame, error) {
 	gameFonts, err := models.LoadFonts()
 	if err != nil {
 		return nil, err
@@ -35,9 +38,9 @@ func NewGame() (*KeydreamGame, error) {
 
 	player := &common.Player{}
 
-	title := lobby.NewTitleScreen(player, gameFonts, tileset)
-	lobby := lobby.NewLobby(player, "http://lobby.keydream.tk", gameFonts, tileset)
-	world := world.NewWorld(player, "world.keydream.tk:80", gameFonts, tileset)
+	title := NewTitleScreen(player, gameFonts, tileset)
+	lobby := lobby.NewLobby(player, LobbyBaseURL, gameFonts, tileset)
+	world := world.NewWorld(player, WorldBaseURL, tileset)
 
 	game.views = map[models.State]common.KeydreamView{
 		models.State_LobbyDisconnected: title,

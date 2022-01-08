@@ -1,4 +1,4 @@
-package lobby
+package game
 
 import (
 	"image/color"

@@ -8,7 +8,10 @@ import (
 )
 
 func main() {
-	game, err := game.NewGame()
+	// TODO: Make this configurable
+	game, err := game.NewGame(
+		"http://lobby.keydream.tk",
+		"world.keydream.tk:80")
 	if err != nil {
 		log.Fatal(err)
 	}
