@@ -1,7 +1,7 @@
 package objects
 
-import "github.com/willcliffy/keydream/client/common"
+import "github.com/willcliffy/keydream/client/common/constants"
 
 type JoinRequest struct {
-	WorldID common.WorldID `json:"id"`
+	WorldID constants.WorldID `json:"id"`
 }

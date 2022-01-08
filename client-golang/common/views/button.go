@@ -36,7 +36,6 @@ func (this *Button) Draw(screen *ebiten.Image) {
 	op.GeoM.Translate(float64(this.X), float64(this.Y))
 	screen.DrawImage(img, op)
 
-
 	// TODO: Fix this. This... it's horrid.
 	text.Draw(screen, this.Text, this.ButtonFont, this.X + this.W/5, this.Y + this.H*2/3, color.Black)
 }

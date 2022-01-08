@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/willcliffy/keydream/client/common"
+	"github.com/willcliffy/keydream/client/common/constants"
 )
 
 type WorldBroadcast struct {
-	ID          common.WorldID `json:"id"`
+	ID          constants.WorldID `json:"id"`
 	IP          string         `json:"ip"`
 	NumPlayers  int            `json:"num_players"`
 	LastUpdated time.Time      `json:"-"`

@@ -8,7 +8,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"github.com/willcliffy/keydream/client/common"
+	"github.com/willcliffy/keydream/client/common/constants"
 	"github.com/willcliffy/keydream/client/common/objects"
 )
 
@@ -26,10 +26,10 @@ func NewWorldView(data *objects.WorldBroadcast, font font.Face, y int) *WorldVie
 	return &WorldView{
 		Data: data,
 		Font: font,
-		X: common.ScreenWidth / 2 - 1.5 * common.DefaultButtonWidth,
+		X: constants.ScreenWidth / 2 - 1.5 * constants.DefaultButtonWidth,
 		Y: y,
-		W: 3 * common.DefaultButtonWidth,
-		H: common.DefaultButtonHeight,
+		W: 3 * constants.DefaultButtonWidth,
+		H: constants.DefaultButtonHeight,
 	}
 }
 

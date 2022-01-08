@@ -7,6 +7,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/willcliffy/keydream/client/common"
+	"github.com/willcliffy/keydream/client/common/constants"
 	"github.com/willcliffy/keydream/client/common/models"
 	"github.com/willcliffy/keydream/client/common/views"
 	"golang.org/x/image/font"
@@ -14,18 +15,18 @@ import (
 
 func NewNameInput(fonts map[models.FontSize]font.Face) *views.TextInput {
 	return views.NewTextInput(fonts,
-		common.ScreenWidth/2 - common.DefaultButtonWidth,
-		common.ScreenHeight/2 - common.DefaultButtonHeight/2,
-		2 * common.DefaultButtonWidth,
-		common.DefaultButtonHeight)
+		constants.ScreenWidth/2 - constants.DefaultButtonWidth,
+		constants.ScreenHeight/2 - constants.DefaultButtonHeight/2,
+		2 * constants.DefaultButtonWidth,
+		constants.DefaultButtonHeight)
 }
 
 func NewConnectButton(fonts map[models.FontSize]font.Face) *views.Button {
 	return views.NewButton("Connect",
-		common.ScreenWidth/2 - common.DefaultButtonWidth/2,
-		common.ScreenHeight/2 + 2*common.DefaultButtonHeight,
-		common.DefaultButtonWidth,
-		common.DefaultButtonHeight,
+		constants.ScreenWidth/2 - constants.DefaultButtonWidth/2,
+		constants.ScreenHeight/2 + 2*constants.DefaultButtonHeight,
+		constants.DefaultButtonWidth,
+		constants.DefaultButtonHeight,
 		fonts[models.FontSizeSmall])
 }
 
@@ -70,7 +71,11 @@ func (this *Title) Update() (models.State, error) {
 
 func (this *Title) Draw(screen *ebiten.Image) {
 	this.Tileset.Draw(screen)
-	text.Draw(screen, "Keydream", this.TitleFont, common.ScreenWidth/3, common.ScreenHeight/3, color.White)
+	text.Draw(screen, "Keydream", this.TitleFont, constants.ScreenWidth/3, constants.ScreenHeight/3, color.White)
 	this.NameInput.Draw(screen)
 	this.ConnectButton.Draw(screen)
+}
+
+func (this *Title) HandleInput() error {
+	return nil
 }

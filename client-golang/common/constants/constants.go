@@ -1,4 +1,4 @@
-package common
+package constants
 
 import "time"
 
@@ -7,6 +7,7 @@ import "time"
 const (
 	TileSize = 16
 	TileScale = 2
+	CharacterScale = 2
 
 	TileSizeScaled = TileSize * TileScale
 
@@ -18,6 +19,12 @@ const (
 
 	DefaultButtonWidth = TileSizeScaled * 5
 	DefaultButtonHeight = TileSizeScaled * 1.5
+
+	// for now, quarter of a second
+	CharacterAnimationSpeed = 250 * time.Millisecond
+	LocalCharacterWalkSpeed = 2
+	RemoteCharacterWalkSpeed = 0.98 * LocalCharacterWalkSpeed
+	
 )
 
 // Constants from server

@@ -12,6 +12,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/willcliffy/keydream/client/common"
+	"github.com/willcliffy/keydream/client/common/constants"
 	"github.com/willcliffy/keydream/client/common/models"
 	"github.com/willcliffy/keydream/client/common/objects"
 	"github.com/willcliffy/keydream/client/common/views"
@@ -21,10 +22,10 @@ import (
 
 func NewBackButton(fonts map[models.FontSize]font.Face) *views.Button {
 	return views.NewButton(" Back",
-		common.ScreenWidth/2 - common.DefaultButtonWidth/2,
-		common.ScreenHeight/2 + 2*common.DefaultButtonHeight,
-		common.DefaultButtonWidth,
-		common.DefaultButtonHeight,
+		constants.ScreenWidth/2 - constants.DefaultButtonWidth/2,
+		constants.ScreenHeight/2 + 2*constants.DefaultButtonHeight,
+		constants.DefaultButtonWidth,
+		constants.DefaultButtonHeight,
 		fonts[models.FontSizeSmall])
 }
 
@@ -63,6 +64,7 @@ func (this *Lobby) Update() (models.State, error) {
 		for _, w := range this.Worlds {
 			if w.IsMouseOver(ebiten.CursorPosition()) {
 				fmt.Printf("joining world %d\n", w.Data.ID)
+				this.Player.World = w.Data
 				return models.State_WorldConnecting, nil
 			}
 		}
@@ -94,8 +96,12 @@ func (this *Lobby) Draw(screen *ebiten.Image) {
 	}
 
 	if this.State == models.State_LobbyConnected {
-		text.Draw(screen, fmt.Sprintf("Connected to lobby as: %s", this.Player.Name), this.Fonts[models.FontSizeTiny], common.TileSize, common.TileSize, color.Black)
+		text.Draw(screen, fmt.Sprintf("Connected to lobby as: %s", this.Player.Name), this.Fonts[models.FontSizeTiny], constants.TileSize, constants.TileSize, color.Black)
 	}
+}
+
+func (this *Lobby) HandleInput() error {
+	return nil
 }
 
 func (this *Lobby) Connect() error {
@@ -136,10 +142,10 @@ func (this *Lobby) Connect() error {
 		return err
 	}
 
-	y := common.ScreenHeight / 8
+	y := constants.ScreenHeight / 8
 	for _, w := range response.Worlds {
 		this.Worlds = append(this.Worlds, *NewWorldView(&w, this.Fonts[models.FontSizeSmall], y))
-		y += common.DefaultButtonHeight
+		y += constants.DefaultButtonHeight
 	}
 
 	fmt.Printf("got response from lobby: %+v\n", response)

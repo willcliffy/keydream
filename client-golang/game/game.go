@@ -5,6 +5,7 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/willcliffy/keydream/client/common"
+	"github.com/willcliffy/keydream/client/common/constants"
 	"github.com/willcliffy/keydream/client/common/models"
 	"github.com/willcliffy/keydream/client/common/views"
 	"github.com/willcliffy/keydream/client/lobby"
@@ -36,7 +37,7 @@ func NewGame() (*KeydreamGame, error) {
 
 	title := lobby.NewTitleScreen(player, gameFonts, tileset)
 	lobby := lobby.NewLobby(player, "http://lobby.keydream.tk", gameFonts, tileset)
-	world := world.NewWorld(player)
+	world := world.NewWorld(player, "world.keydream.tk:80", gameFonts, tileset)
 
 	game.views = map[models.State]common.KeydreamView{
 		models.State_LobbyDisconnected: title,
@@ -52,7 +53,7 @@ func NewGame() (*KeydreamGame, error) {
 }
 
 func (g *KeydreamGame) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return common.ScreenWidth, common.ScreenHeight
+	return constants.ScreenWidth, constants.ScreenHeight
 }
 
 func (g *KeydreamGame) Update() error {

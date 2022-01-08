@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/willcliffy/keydream/client/common"
+	"github.com/willcliffy/keydream/client/common/constants"
 )
 
 const (
@@ -35,6 +35,20 @@ type Tileset struct {
 	Tiles []*ebiten.Image
 }
 
+func NewItemIcon(item string) (*ebiten.Image, error) {
+	f, err := os.Open("./assets/objects/oliver_crawford/"+item+"_icon.png")
+	if err != nil {
+		return nil, err
+	}
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return ebiten.NewImageFromImage(img), nil
+}
+
 func NewTileset() (*Tileset, error) {
 	f, err := os.Open("./assets/environment/cainos/TX Tileset Grass.png")
 	if err != nil {
@@ -54,17 +68,17 @@ func NewTileset() (*Tileset, error) {
 			if x >= GrassBoundaryX0 && x < GrassBoundaryX1 && y >= GrassBoundaryY0 && y < GrassBoundaryY1 {
 				tileset.Grass = append(tileset.Grass, wholeTileset.SubImage(
 					image.Rect(
-						x * common.TileSize,
-						y * common.TileSize,
-						(x + 1) * common.TileSize,
-						(y + 1) * common.TileSize)).(*ebiten.Image))
+						x * constants.TileSize,
+						y * constants.TileSize,
+						(x + 1) * constants.TileSize,
+						(y + 1) * constants.TileSize)).(*ebiten.Image))
 			} else if x >= FlowerBoundaryX0 && x < FlowerBoundaryX1 && y >= FlowerBoundaryY0 && y < FlowerBoundaryY1 {
 				tileset.Flowers = append(tileset.Flowers, wholeTileset.SubImage(
 					image.Rect(
-						x * common.TileSize,
-						y * common.TileSize,
-						(x + 1) * common.TileSize,
-						(y + 1) * common.TileSize)).(*ebiten.Image))
+						x * constants.TileSize,
+						y * constants.TileSize,
+						(x + 1) * constants.TileSize,
+						(y + 1) * constants.TileSize)).(*ebiten.Image))
 			} else if x >= TileBoundaryX0 && x < TileBoundaryX1 && y >= TileBoundaryY0 && y < TileBoundaryY1 {
 				// quirk of this particular tileset - random patch of grass :(
 				if x == 4 {
@@ -73,10 +87,10 @@ func NewTileset() (*Tileset, error) {
 
 				tileset.Tiles = append(tileset.Tiles, wholeTileset.SubImage(
 					image.Rect(
-						x * common.TileSize,
-						y * common.TileSize,
-						(x + 1) * common.TileSize,
-						(y + 1) * common.TileSize)).(*ebiten.Image))
+						x * constants.TileSize,
+						y * constants.TileSize,
+						(x + 1) * constants.TileSize,
+						(y + 1) * constants.TileSize)).(*ebiten.Image))
 			}
 		}
 	}
@@ -85,10 +99,10 @@ func NewTileset() (*Tileset, error) {
 }
 
 func (this *Tileset) Draw(screen *ebiten.Image) {
-	for x := 0; x < common.ScreenWidthInTiles; x++ {
-		for y := 0; y < common.ScreenHeightInTiles; y++ {
+	for x := 0; x < constants.ScreenWidthInTiles; x++ {
+		for y := 0; y < constants.ScreenHeightInTiles; y++ {
 			op := &ebiten.DrawImageOptions{}
-			op.GeoM.Translate(float64(x * common.TileSize), float64(y * common.TileSize))
+			op.GeoM.Translate(float64(x * constants.TileSize), float64(y * constants.TileSize))
 
 			// This is only necessary because I have an enormous screen.
 			// todo - One day I'll make a settings menu and make this a setting.
@@ -109,7 +123,7 @@ func (this *Tileset) Display(screen *ebiten.Image) {
 			y = 1
 		}
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(x * common.TileSize), float64(y * common.TileSize))
+		op.GeoM.Translate(float64(x * constants.TileSize), float64(y * constants.TileSize))
 		screen.DrawImage(grassTile, op)
 		y++
 	}
@@ -123,7 +137,7 @@ func (this *Tileset) Display(screen *ebiten.Image) {
 			y = 1
 		}
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(x * common.TileSize), float64(y * common.TileSize))
+		op.GeoM.Translate(float64(x * constants.TileSize), float64(y * constants.TileSize))
 		screen.DrawImage(flowerTile, op)
 		y++
 	}
@@ -137,7 +151,7 @@ func (this *Tileset) Display(screen *ebiten.Image) {
 			y = 1
 		}
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64(x * common.TileSize), float64(y * common.TileSize))
+		op.GeoM.Translate(float64(x * constants.TileSize), float64(y * constants.TileSize))
 		screen.DrawImage(tile, op)
 		y++
 	}

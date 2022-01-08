@@ -8,4 +8,5 @@ import (
 type KeydreamView interface {
 	Update() (models.State, error)
 	Draw(screen *ebiten.Image)
+	HandleInput() error
 }
