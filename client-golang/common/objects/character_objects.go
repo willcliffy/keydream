@@ -34,6 +34,10 @@ type CharacterState int
 const (
 	CharacterState_Idle CharacterState = iota
 	CharacterState_Walk
+	CharacterState_Attack
+	CharacterState_Block
+	CharacterState_Roll
+	CharacterState_Swim
 )
 
 func CharacterState_values() []CharacterState {
