@@ -22,9 +22,7 @@ const (
 
 	// for now, quarter of a second
 	CharacterAnimationSpeed = 250 * time.Millisecond
-	LocalCharacterWalkSpeed = 2
-	RemoteCharacterWalkSpeed = 0.98 * LocalCharacterWalkSpeed
-	
+	CharacterWalkSpeed = 2
 )
 
 // Constants from server
@@ -42,4 +40,6 @@ const (
 	MaxNumberOfWorlds uint8 = 1
 
 	PlayerTimeout = time.Second * 5
+
+	WorldTickRate = 200 * time.Millisecond
 )
