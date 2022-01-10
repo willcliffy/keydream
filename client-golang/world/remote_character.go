@@ -2,8 +2,7 @@ package world
 
 import (
 	"fmt"
-	"image"
-	"os"
+	"math"
 	"strconv"
 
 	"github.com/hajimehoshi/ebiten/v2"
@@ -11,6 +10,7 @@ import (
 	"github.com/willcliffy/keydream/client/common/objects"
 	"github.com/willcliffy/keydream/client/common/views"
 	world_models "github.com/willcliffy/keydream/client/world/models"
+	world_utils "github.com/willcliffy/keydream/client/world/utils"
 )
 
 type RemoteCharacter struct {
@@ -19,103 +19,56 @@ type RemoteCharacter struct {
 	Name string
 	ID uint8
 
-	NoEquipmentAnimations map[objects.CharacterState]map[objects.CharacterDirection]*views.Animation
-	WithSwordAnimations map[objects.CharacterState]map[objects.CharacterDirection]*views.Animation
+	IdleAnimation *views.Animation
+	WalkAnimation *views.Animation
 
-	// todo - this is hacky. dont be like this
-	withSword bool
+	characterDirection objects.CharacterDirection
+	characterState     objects.CharacterState
+	characterType      objects.CharacterType
 
-	Direction objects.CharacterDirection
-	State     objects.CharacterState
-	Type      objects.CharacterType
+	x, y float64
+	speedX, speedY float64
 
-	X, Y int64
-
-	Targets []objects.Position
+	targets []objects.Position
 }
 
-func NewRemoteCharacter(id uint8, characterName string, x, y int64) *RemoteCharacter {
-	animations := make(map[objects.CharacterState]map[objects.CharacterDirection]*views.Animation)
-	for _, state := range objects.CharacterState_values() {
-		animations[state] = make(map[objects.CharacterDirection]*views.Animation)
-	}
-
-	for _, state := range objects.CharacterState_values() {
-		for _, direction := range objects.CharacterDirection_values() {
-			frames := make([]*ebiten.Image, 4)
-			for i := 1; i <= 4; i++ {
-				filePath := fmt.Sprintf("./assets/sprites/rgs_dev/Character without weapon/%s/%s %s%d.png", state.String(), state.String(), direction.String(), i)
-				f, err := os.Open(filePath)
-				if err != nil {
-					panic(err)
-				}
-
-				rawImg, _, err := image.Decode(f)
-				if err != nil {
-					panic(err)
-				}
-
-				frames[i-1] = ebiten.NewImageFromImage(rawImg)
-			}
-
-			animations[state][direction] = views.NewAnimation(frames, constants.CharacterAnimationSpeed)
-		}
-	}
-
+func NewRemoteCharacter(id uint8, characterName string, x, y float64) *RemoteCharacter {
 	return &RemoteCharacter{
 		Name: characterName,
 		ID: id,
-
-		X: x,
-		Y: y,
-
-		NoEquipmentAnimations: animations,
-		WithSwordAnimations: animations,
-
-		Direction: objects.CharacterDirection_DOWN,
-		State:     objects.CharacterState_IDLE,
-		Type:      objects.CharacterType_REMOTE,
+		x: x,
+		y: y,
+		characterDirection: objects.CharacterDirection_DOWN,
+		characterState: objects.CharacterState_IDLE,
+		characterType: objects.CharacterType_REMOTE,
+		speedX: constants.RemoteCharacterMinWalkSpeed - constants.RemoteCharacterWalkAcceleration,
+		speedY: constants.RemoteCharacterMinWalkSpeed - constants.RemoteCharacterWalkAcceleration,
+		targets: []objects.Position{},
+		IdleAnimation: world_utils.LoadIdleAnimations(),
+		WalkAnimation: world_utils.LoadWalkAnimations(),
 	}
 }
 
 func (r *RemoteCharacter) Update() {
-	if len(r.Targets) == 0 {
-		r.State = objects.CharacterState_IDLE
-		r.NoEquipmentAnimations[r.State][r.Direction].Update()
+	if len(r.targets) != 0 {
+		r.walkTowardsTarget()
 	} else {
-		if r.X - r.Targets[0].X > constants.CharacterWalkSpeed {
-			r.X -= constants.CharacterWalkSpeed
-		} else if r.X - r.Targets[0].X < -constants.CharacterWalkSpeed {
-			r.X += constants.CharacterWalkSpeed
-		} else {
-			r.X = r.Targets[0].X
-		}
-
-		if r.Y - r.Targets[0].Y > constants.CharacterWalkSpeed {
-			r.Y -= constants.CharacterWalkSpeed
-		} else if r.Y - r.Targets[0].Y < -constants.CharacterWalkSpeed {
-			r.Y += constants.CharacterWalkSpeed
-		} else {
-			r.Y = r.Targets[0].Y
-		}
+		r.IdleAnimation.Update(r.characterDirection)
 	}
 }
 
 func (r *RemoteCharacter) Draw(screen *ebiten.Image) {
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(r.X), float64(r.Y))
+	op.GeoM.Translate(r.x, r.y)
 	op.GeoM.Scale(constants.CharacterScale, constants.CharacterScale)
-
-	var frame *ebiten.Image
-	if r.withSword {
-		frame = r.WithSwordAnimations[r.State][r.Direction].GetCurrentFrame()
-	} else {
-		frame = r.NoEquipmentAnimations[r.State][r.Direction].GetCurrentFrame()
-	}
 	
-	screen.DrawImage(frame, op)
+	switch r.characterState {
+	case objects.CharacterState_IDLE:
+		screen.DrawImage(r.IdleAnimation.GetCurrentFrame(r.characterDirection), op)
+	case objects.CharacterState_WALK:
+		screen.DrawImage(r.WalkAnimation.GetCurrentFrame(r.characterDirection), op)
+	}
 }
-
 
 func (r *RemoteCharacter) HandleMessage(msg *world_models.WorldMessage) error {
 	switch msg.Type {
@@ -124,24 +77,79 @@ func (r *RemoteCharacter) HandleMessage(msg *world_models.WorldMessage) error {
 			return fmt.Errorf("expected 2 params, got %+v", msg.Params)
 		}
 
-		x, err := strconv.ParseInt(msg.Params[0], 10, 64)
+		x, err := strconv.ParseFloat(msg.Params[0], 64)
 		if err != nil {
 			return fmt.Errorf("could not parse x param: %s", err)
 		}
 
-		y, err := strconv.ParseInt(msg.Params[1], 10, 64)
+		y, err := strconv.ParseFloat(msg.Params[1], 64)
 		if err != nil {
 			return fmt.Errorf("could not parse y param: %s", err)
 		}
 
-		r.handleMove(x, y)
+		r.targets = append(r.targets, objects.Position{X: x, Y: y})
 		return nil
 	default:
 		return fmt.Errorf("unknown message type for remote character: %s", msg.Type)
 	}
 }
 
-func (r *RemoteCharacter) handleMove(x, y int64) {
-	r.Targets = append(r.Targets, objects.Position{X: x, Y: y})
-}
+func (r *RemoteCharacter) walkTowardsTarget() {
+	targetX := r.targets[0].X
+	targetY := r.targets[0].Y
 
+	if targetX - r.x < -constants.RemoteCharacterAlpha {
+		r.speedX = -constants.RemoteCharacterMaxWalkSpeed
+	} else if targetX - r.x > constants.RemoteCharacterAlpha {
+		r.speedX = constants.RemoteCharacterMaxWalkSpeed
+	} else {
+		r.x = targetX
+		r.speedX = 0
+	}
+
+	if targetY - r.y < -constants.RemoteCharacterAlpha {
+		r.speedY = -constants.RemoteCharacterMaxWalkSpeed
+	} else if targetY - r.y > constants.RemoteCharacterAlpha {
+		r.speedY = constants.RemoteCharacterMaxWalkSpeed
+	} else {
+		r.y = targetY
+		r.speedY = 0
+	}
+
+	if r.x == targetX && r.y == targetY {
+		r.targets = r.targets[1:]
+		if len(r.targets) == 0 {
+			r.characterState = objects.CharacterState_IDLE
+			r.speedX = 0
+			r.speedY = 0
+		}
+		return
+	}
+
+	r.x += r.speedX
+	r.y += r.speedY
+
+	if r.speedX < constants.RemoteCharacterMaxWalkSpeed {
+		r.speedX += constants.RemoteCharacterWalkAcceleration
+	}
+	if r.speedY < constants.RemoteCharacterMaxWalkSpeed {
+		r.speedY += constants.RemoteCharacterWalkAcceleration
+	}
+
+	r.characterState = objects.CharacterState_WALK
+	if math.Abs(r.speedX) > math.Abs(r.speedY) {
+		if r.x > targetX {
+			r.characterDirection = objects.CharacterDirection_LEFT
+		} else if r.x < targetX {
+			r.characterDirection = objects.CharacterDirection_RIGHT
+		}
+	} else {
+		if r.y > targetY {
+			r.characterDirection = objects.CharacterDirection_UP
+		} else if r.y < targetY {
+			r.characterDirection = objects.CharacterDirection_DOWN
+		}
+	}
+
+	r.WalkAnimation.Update(r.characterDirection)
+}

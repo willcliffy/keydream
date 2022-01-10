@@ -1,8 +1,8 @@
 package objects
 
 type Position struct {
-	X int64
-	Y int64
+	X float64
+	Y float64
 }
 
 func NewPosition() Position {

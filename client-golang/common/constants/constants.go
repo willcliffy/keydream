@@ -22,7 +22,12 @@ const (
 
 	// for now, quarter of a second
 	CharacterAnimationSpeed = 250 * time.Millisecond
-	CharacterWalkSpeed = 2
+	CharacterWalkSpeed float64 = 2
+	RemoteCharacterMinWalkSpeed float64 = 0.5
+	RemoteCharacterMaxWalkSpeed float64 = CharacterWalkSpeed
+	RemoteCharacterWalkAcceleration = 0.001
+
+	RemoteCharacterAlpha = 1.05 * RemoteCharacterMaxWalkSpeed
 )
 
 // Constants from server
@@ -41,5 +46,5 @@ const (
 
 	PlayerTimeout = time.Second * 5
 
-	WorldTickRate = 200 * time.Millisecond
+	WorldTickRate = 250 * time.Millisecond
 )

@@ -99,7 +99,7 @@ func (this *WorldTransport) Update() error {
 
 func (this *WorldTransport) Tick() error {
 	if this.localCharacter.HasMoved() {
-		_, err := this.conn.Write([]byte(fmt.Sprintf("move %d %d %d \n", this.localCharacter.ID, this.localCharacter.X, this.localCharacter.Y)))
+		_, err := this.conn.Write([]byte(fmt.Sprintf("move %d %d %d \n", this.localCharacter.ID, int64(this.localCharacter.x), int64(this.localCharacter.y))))
 		if err != nil {
 			return err
 		}
@@ -124,48 +124,54 @@ func (this *WorldTransport) HandleMessage(msg string) {
 
 	if worldMsg == nil {
 		fmt.Printf("bad world message: %s", msg)
-	} else if worldMsg.CharacterID == this.localCharacter.ID {
+		return
+	}
+	
+	if worldMsg.CharacterID == this.localCharacter.ID {
 		if err := this.localCharacter.HandleMessage(worldMsg); err != nil {
 			fmt.Printf("error handling local character message: %s", err)
 		}
-	} else {
-		switch worldMsg.Type {
-		case world_models.WorldMessageType_JOIN:
-			if len(worldMsg.Params) != 3 {
-				fmt.Printf("ignored message - bad join message: %s", msg)
-				return
-			}
+		return
+	}
 
-			name := worldMsg.Params[0]
-
-			x, err := strconv.ParseInt(worldMsg.Params[1], 10, 64)
-			if err != nil {
-				fmt.Printf("ignored message - bad x in join message: '%s' in '%s'", worldMsg.Params[1], msg)
-				return
-			}
-
-			y, err := strconv.ParseInt(worldMsg.Params[2], 10, 64)
-			if err != nil {
-				fmt.Printf("ignored message - bad y in join message: '%s' in '%s'", worldMsg.Params[2], msg)
-				return
-			}
-
-			this.RemoteCharacters[worldMsg.CharacterID] = NewRemoteCharacter(worldMsg.CharacterID, name, x, y)
-		case world_models.WorldMessageType_MOVE:
-			rc, ok := this.RemoteCharacters[worldMsg.CharacterID]
-			if !ok {
-				fmt.Printf("ignored message - received move for unknown character: %d\n", worldMsg.CharacterID)
-				return
-			}
-
-			if err := rc.HandleMessage(worldMsg); err != nil {
-				fmt.Printf("error handling move message: %s\n", err)
-			}
-		case world_models.WorldMessageType_LEFT:
-			this.RemoteCharacters[worldMsg.CharacterID] = nil
-		default:
-			fmt.Printf("ignored message - unknown message type for remote player: %sn", worldMsg.Type)
+	switch worldMsg.Type {
+	case world_models.WorldMessageType_JOIN:
+		if len(worldMsg.Params) != 3 {
+			fmt.Printf("ignored message - bad join message: %s", msg)
+			return
 		}
+
+		name := worldMsg.Params[0]
+
+		x, err := strconv.ParseFloat(worldMsg.Params[1], 64)
+		if err != nil {
+			fmt.Printf("ignored message - bad x in join message: '%s' in '%s'", worldMsg.Params[1], msg)
+			return
+		}
+
+		y, err := strconv.ParseFloat(worldMsg.Params[2], 64)
+		if err != nil {
+			fmt.Printf("ignored message - bad y in join message: '%s' in '%s'", worldMsg.Params[2], msg)
+			return
+		}
+
+		fmt.Printf("%s joined the game\n", name)
+		this.RemoteCharacters[worldMsg.CharacterID] = NewRemoteCharacter(worldMsg.CharacterID, name, x, y)
+	case world_models.WorldMessageType_MOVE:
+		rc, ok := this.RemoteCharacters[worldMsg.CharacterID]
+		if !ok {
+			fmt.Printf("ignored message - received move for unknown character: %d\n", worldMsg.CharacterID)
+			return
+		}
+
+		if err := rc.HandleMessage(worldMsg); err != nil {
+			fmt.Printf("error handling move message: %s\n", err)
+		}
+	case world_models.WorldMessageType_LEFT:
+		fmt.Printf("received left message for character: %d\n", worldMsg.CharacterID)
+		delete(this.RemoteCharacters, worldMsg.CharacterID)
+	default:
+		fmt.Printf("ignored message - unknown message type for remote player: %sn", worldMsg.Type)
 	}
 }
 
