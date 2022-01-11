@@ -1,7 +1,5 @@
 # Keydream
 
-Playing around with Lua and LÖVE.
-
 ## Screenshots
 
 Lobby:
