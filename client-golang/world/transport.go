@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/willcliffy/keydream/client/common/constants"
-	"github.com/willcliffy/keydream/client/world/models"
+	"github.com/willcliffy/keydream/client/common/objects"
 )
 
 type WorldTransport struct {
@@ -120,7 +120,7 @@ func (this *WorldTransport) HandleMessage(msg string) {
 		return
 	}
 
-	worldMsg := world_models.NewWorldMessage(msg)
+	worldMsg := objects.NewWorldMessage(msg)
 
 	if worldMsg == nil {
 		fmt.Printf("bad world message: %s", msg)
@@ -135,7 +135,7 @@ func (this *WorldTransport) HandleMessage(msg string) {
 	}
 
 	switch worldMsg.Type {
-	case world_models.WorldMessageType_JOIN:
+	case objects.WorldMessageType_JOIN:
 		if len(worldMsg.Params) != 3 {
 			fmt.Printf("ignored message - bad join message: %s", msg)
 			return
@@ -157,7 +157,7 @@ func (this *WorldTransport) HandleMessage(msg string) {
 
 		fmt.Printf("%s joined the game\n", name)
 		this.RemoteCharacters[worldMsg.CharacterID] = NewRemoteCharacter(worldMsg.CharacterID, name, x, y)
-	case world_models.WorldMessageType_MOVE:
+	case objects.WorldMessageType_MOVE:
 		rc, ok := this.RemoteCharacters[worldMsg.CharacterID]
 		if !ok {
 			fmt.Printf("ignored message - received move for unknown character: %d\n", worldMsg.CharacterID)
@@ -167,7 +167,7 @@ func (this *WorldTransport) HandleMessage(msg string) {
 		if err := rc.HandleMessage(worldMsg); err != nil {
 			fmt.Printf("error handling move message: %s\n", err)
 		}
-	case world_models.WorldMessageType_LEFT:
+	case objects.WorldMessageType_LEFT:
 		fmt.Printf("received left message for character: %d\n", worldMsg.CharacterID)
 		delete(this.RemoteCharacters, worldMsg.CharacterID)
 	default:

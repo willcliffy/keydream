@@ -1,4 +1,4 @@
-package world_models
+package objects
 
 import (
 	"fmt"

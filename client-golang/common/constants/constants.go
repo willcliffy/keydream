@@ -24,10 +24,10 @@ const (
 	CharacterAnimationSpeed = 250 * time.Millisecond
 	CharacterWalkSpeed float64 = 2
 	RemoteCharacterMinWalkSpeed float64 = 0.5
-	RemoteCharacterMaxWalkSpeed float64 = CharacterWalkSpeed
+	RemoteCharacterMaxWalkSpeed float64 = 0.99 * CharacterWalkSpeed
 	RemoteCharacterWalkAcceleration = 0.001
 
-	RemoteCharacterAlpha = 1.05 * RemoteCharacterMaxWalkSpeed
+	RemoteCharacterAlpha = 1.025 * RemoteCharacterMaxWalkSpeed
 )
 
 // Constants from server

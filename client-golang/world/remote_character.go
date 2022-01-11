@@ -9,8 +9,6 @@ import (
 	"github.com/willcliffy/keydream/client/common/constants"
 	"github.com/willcliffy/keydream/client/common/objects"
 	"github.com/willcliffy/keydream/client/common/views"
-	world_models "github.com/willcliffy/keydream/client/world/models"
-	world_utils "github.com/willcliffy/keydream/client/world/utils"
 )
 
 type RemoteCharacter struct {
@@ -19,12 +17,7 @@ type RemoteCharacter struct {
 	Name string
 	ID uint8
 
-	IdleAnimation *views.Animation
-	WalkAnimation *views.Animation
-
-	characterDirection objects.CharacterDirection
-	characterState     objects.CharacterState
-	characterType      objects.CharacterType
+	animation *views.CharacterAnimation
 
 	x, y float64
 	speedX, speedY float64
@@ -33,46 +26,61 @@ type RemoteCharacter struct {
 }
 
 func NewRemoteCharacter(id uint8, characterName string, x, y float64) *RemoteCharacter {
+	animation := views.NewCharacterAnimation()
 	return &RemoteCharacter{
-		Name: characterName,
-		ID: id,
-		x: x,
-		y: y,
-		characterDirection: objects.CharacterDirection_DOWN,
-		characterState: objects.CharacterState_IDLE,
-		characterType: objects.CharacterType_REMOTE,
-		speedX: constants.RemoteCharacterMinWalkSpeed - constants.RemoteCharacterWalkAcceleration,
-		speedY: constants.RemoteCharacterMinWalkSpeed - constants.RemoteCharacterWalkAcceleration,
-		targets: []objects.Position{},
-		IdleAnimation: world_utils.LoadIdleAnimations(),
-		WalkAnimation: world_utils.LoadWalkAnimations(),
+		Name:      characterName,
+		ID:        id,
+
+		animation: &animation,
+
+		x:         x,
+		y:         y,
+		speedX:    0,
+		speedY:    0,
+		targets:   []objects.Position{},
 	}
 }
 
 func (r *RemoteCharacter) Update() {
-	if len(r.targets) != 0 {
-		r.walkTowardsTarget()
-	} else {
-		r.IdleAnimation.Update(r.characterDirection)
+	if len(r.targets) == 0 {
+		r.animation.Update()
+		return
 	}
+
+	directions := r.directionsToTarget(r.targets[0])
+	for _, direction := range directions {
+		r.moveInDirection(direction)
+		r.animation.Walk(direction)
+	}
+
+	reachedX := r.reachedTargetX()
+	reachedY := r.reachedTargetY()
+
+	if reachedX {
+		r.x = r.targets[0].X
+		r.speedX = 0
+	}
+
+	if reachedY {
+		r.y = r.targets[0].Y
+		r.speedY = 0
+	}
+
+	if reachedX && reachedY {
+		r.targets = r.targets[1:]
+		r.animation.Idle()
+	}
+
+	r.animation.Update()
 }
 
 func (r *RemoteCharacter) Draw(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(r.x, r.y)
-	op.GeoM.Scale(constants.CharacterScale, constants.CharacterScale)
-	
-	switch r.characterState {
-	case objects.CharacterState_IDLE:
-		screen.DrawImage(r.IdleAnimation.GetCurrentFrame(r.characterDirection), op)
-	case objects.CharacterState_WALK:
-		screen.DrawImage(r.WalkAnimation.GetCurrentFrame(r.characterDirection), op)
-	}
+	r.animation.Draw(screen, r.x, r.y)
 }
 
-func (r *RemoteCharacter) HandleMessage(msg *world_models.WorldMessage) error {
+func (r *RemoteCharacter) HandleMessage(msg *objects.WorldMessage) error {
 	switch msg.Type {
-	case world_models.WorldMessageType_MOVE:
+	case objects.WorldMessageType_MOVE:
 		if len(msg.Params) != 2 {
 			return fmt.Errorf("expected 2 params, got %+v", msg.Params)
 		}
@@ -87,6 +95,7 @@ func (r *RemoteCharacter) HandleMessage(msg *world_models.WorldMessage) error {
 			return fmt.Errorf("could not parse y param: %s", err)
 		}
 
+		fmt.Printf("%s moved to %f, %f\n", r.Name, x, y)
 		r.targets = append(r.targets, objects.Position{X: x, Y: y})
 		return nil
 	default:
@@ -94,62 +103,48 @@ func (r *RemoteCharacter) HandleMessage(msg *world_models.WorldMessage) error {
 	}
 }
 
-func (r *RemoteCharacter) walkTowardsTarget() {
-	targetX := r.targets[0].X
-	targetY := r.targets[0].Y
+func (r *RemoteCharacter) moveInDirection(direction objects.CharacterDirection) {
+	switch direction {
+	case objects.CharacterDirection_LEFT:
+		r.x -= constants.RemoteCharacterMaxWalkSpeed
+	case objects.CharacterDirection_RIGHT:
+		r.x += constants.RemoteCharacterMaxWalkSpeed
+	case objects.CharacterDirection_UP:
+		r.y -= constants.RemoteCharacterMaxWalkSpeed
+	case objects.CharacterDirection_DOWN:
+		r.y += constants.RemoteCharacterMaxWalkSpeed
+	}
+}
 
-	if targetX - r.x < -constants.RemoteCharacterAlpha {
-		r.speedX = -constants.RemoteCharacterMaxWalkSpeed
-	} else if targetX - r.x > constants.RemoteCharacterAlpha {
-		r.speedX = constants.RemoteCharacterMaxWalkSpeed
-	} else {
-		r.x = targetX
-		r.speedX = 0
+func (r RemoteCharacter) directionsToTarget(target objects.Position) []objects.CharacterDirection {
+	ret := []objects.CharacterDirection{}
+	if target.X < r.x + constants.RemoteCharacterAlpha {
+		ret = append(ret, objects.CharacterDirection_LEFT)
+	} else if target.X > r.x + constants.RemoteCharacterAlpha {
+		ret = append(ret, objects.CharacterDirection_RIGHT)
 	}
 
-	if targetY - r.y < -constants.RemoteCharacterAlpha {
-		r.speedY = -constants.RemoteCharacterMaxWalkSpeed
-	} else if targetY - r.y > constants.RemoteCharacterAlpha {
-		r.speedY = constants.RemoteCharacterMaxWalkSpeed
-	} else {
-		r.y = targetY
-		r.speedY = 0
+	if target.Y < r.y - constants.RemoteCharacterAlpha {
+		ret = append(ret, objects.CharacterDirection_UP)
+	} else if target.Y > r.y + constants.RemoteCharacterAlpha {
+		ret = append(ret, objects.CharacterDirection_DOWN)
 	}
 
-	if r.x == targetX && r.y == targetY {
-		r.targets = r.targets[1:]
-		if len(r.targets) == 0 {
-			r.characterState = objects.CharacterState_IDLE
-			r.speedX = 0
-			r.speedY = 0
-		}
-		return
+	return ret
+}
+
+func (r RemoteCharacter) reachedTargetX() bool {
+	if len(r.targets) == 0 {
+		return true
 	}
 
-	r.x += r.speedX
-	r.y += r.speedY
+	return math.Abs(r.x - r.targets[0].X) <= constants.RemoteCharacterAlpha
+}
 
-	if r.speedX < constants.RemoteCharacterMaxWalkSpeed {
-		r.speedX += constants.RemoteCharacterWalkAcceleration
-	}
-	if r.speedY < constants.RemoteCharacterMaxWalkSpeed {
-		r.speedY += constants.RemoteCharacterWalkAcceleration
+func (r RemoteCharacter) reachedTargetY() bool {
+	if len(r.targets) == 0 {
+		return true
 	}
 
-	r.characterState = objects.CharacterState_WALK
-	if math.Abs(r.speedX) > math.Abs(r.speedY) {
-		if r.x > targetX {
-			r.characterDirection = objects.CharacterDirection_LEFT
-		} else if r.x < targetX {
-			r.characterDirection = objects.CharacterDirection_RIGHT
-		}
-	} else {
-		if r.y > targetY {
-			r.characterDirection = objects.CharacterDirection_UP
-		} else if r.y < targetY {
-			r.characterDirection = objects.CharacterDirection_DOWN
-		}
-	}
-
-	r.WalkAnimation.Update(r.characterDirection)
+	return math.Abs(r.y - r.targets[0].Y) <= constants.RemoteCharacterAlpha	
 }

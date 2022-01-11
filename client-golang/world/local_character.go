@@ -9,8 +9,6 @@ import (
 	"github.com/willcliffy/keydream/client/common/constants"
 	"github.com/willcliffy/keydream/client/common/objects"
 	"github.com/willcliffy/keydream/client/common/views"
-	world_models "github.com/willcliffy/keydream/client/world/models"
-	world_utils "github.com/willcliffy/keydream/client/world/utils"
 )
 
 type LocalCharacter struct {
@@ -18,78 +16,57 @@ type LocalCharacter struct {
 
 	ID uint8
 	Player *common.Player
-
-	IdleAnimation *views.Animation
-	WalkAnimation *views.Animation
-
-	Direction objects.CharacterDirection
-	State     objects.CharacterState
 	Type      objects.CharacterType
+
+	Animation *views.CharacterAnimation
 
 	x, y float64
 	lastX, lastY float64
 }
 
 func NewCharacter(player *common.Player, charType objects.CharacterType) *LocalCharacter {
+	animation := views.NewCharacterAnimation()
+
 	return &LocalCharacter{
 		Player:    player,
-
-		Direction: objects.CharacterDirection_DOWN,
-		State:     objects.CharacterState_IDLE,
 		Type:      charType,
 
-		IdleAnimation: world_utils.LoadIdleAnimations(),
-		WalkAnimation: world_utils.LoadWalkAnimations(),
+		Animation: &animation,
 
-		x:     constants.TileSizeScaled,
-		y:     constants.TileSizeScaled,
-		lastX: constants.TileSizeScaled,
-		lastY: constants.TileSizeScaled,
+		x:         constants.TileSizeScaled,
+		y:         constants.TileSizeScaled,
+		lastX:     constants.TileSizeScaled,
+		lastY:     constants.TileSizeScaled,
 	}
 }
 
 func (c *LocalCharacter) Update() {
-	if inpututil.IsKeyJustPressed(ebiten.KeyLeft) || inpututil.IsKeyJustPressed(ebiten.KeyA) {
-		c.walkInDirection(objects.CharacterDirection_LEFT)
-	} else if inpututil.IsKeyJustPressed(ebiten.KeyRight) || inpututil.IsKeyJustPressed(ebiten.KeyD) {
-		c.walkInDirection(objects.CharacterDirection_RIGHT)
-	} else if inpututil.IsKeyJustPressed(ebiten.KeyUp) || inpututil.IsKeyJustPressed(ebiten.KeyW) {
-		c.walkInDirection(objects.CharacterDirection_UP)
-	} else if inpututil.IsKeyJustPressed(ebiten.KeyDown) || inpututil.IsKeyJustPressed(ebiten.KeyS) {
-		c.walkInDirection(objects.CharacterDirection_DOWN)
+	if directions := c.directionsPressed(); len(directions) == 0 {
+		c.Animation.Idle()
 	} else {
-		pressedKeys := inpututil.AppendPressedKeys([]ebiten.Key{})
-		if len(pressedKeys) == 0 {
-			c.State = objects.CharacterState_IDLE
-			c.IdleAnimation.Update(c.Direction)
-		} else {
-			for _, key := range pressedKeys {
-				if c.Direction == objects.KeyToDirection(key) {
-					c.walkInDirection(c.Direction)
-					break
-				}
-			}
+		for _, direction := range directions {
+			c.moveInDirection(direction)
+			c.Animation.Walk(direction)
 		}
 	}
+
+	c.Animation.Update()
 }
 
-func (c *LocalCharacter) Draw(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(c.x, c.y)
-	op.GeoM.Scale(constants.CharacterScale, constants.CharacterScale)
-	
-	switch c.State {
-	case objects.CharacterState_IDLE:
-		screen.DrawImage(c.IdleAnimation.GetCurrentFrame(c.Direction), op)
-	case objects.CharacterState_WALK:
-		screen.DrawImage(c.WalkAnimation.GetCurrentFrame(c.Direction), op)
+func (c *LocalCharacter) directionsPressed() []objects.CharacterDirection {
+	pressedKeys := inpututil.AppendPressedKeys([]ebiten.Key{})
+	directions := make([]objects.CharacterDirection, 0)
+	for _, key := range pressedKeys {
+		dir := objects.KeyToDirection(key)
+		if dir != objects.CharacterDirection_NONE && !dir.ContainedIn(directions) && !dir.OppositeContainedIn(directions) {
+			directions = append(directions, dir)
+		}
 	}
+
+	return directions
 }
 
-func (c *LocalCharacter) walkInDirection(direction objects.CharacterDirection) {
-	c.Direction = direction
-	c.State = objects.CharacterState_WALK
-
+func (c *LocalCharacter) moveInDirection(direction objects.CharacterDirection) {
 	switch direction {
 	case objects.CharacterDirection_LEFT:
 		c.x -= constants.CharacterWalkSpeed
@@ -100,8 +77,10 @@ func (c *LocalCharacter) walkInDirection(direction objects.CharacterDirection) {
 	case objects.CharacterDirection_DOWN:
 		c.y += constants.CharacterWalkSpeed
 	}
+}
 
-	c.WalkAnimation.Update(direction)
+func (c *LocalCharacter) Draw(screen *ebiten.Image) {
+	c.Animation.Draw(screen, c.x, c.y)
 }
 
 func (c *LocalCharacter) HasMoved() bool {
@@ -113,13 +92,13 @@ func (c *LocalCharacter) Tick() {
 	c.lastY = c.y
 }
 
-func (c *LocalCharacter) HandleMessage(msg *world_models.WorldMessage) error {
+func (c *LocalCharacter) HandleMessage(msg *objects.WorldMessage) error {
 	switch msg.Type {
-	case world_models.WorldMessageType_JOIN:
+	case objects.WorldMessageType_JOIN:
 		c.HandleJoin(msg)
-	case world_models.WorldMessageType_MOVE:
+	case objects.WorldMessageType_MOVE:
 		c.HandleMove(msg)
-	case world_models.WorldMessageType_LEFT:
+	case objects.WorldMessageType_LEFT:
 		c.HandleLeft(msg)
 	default:
 		return fmt.Errorf("Unknown message type for local player: %s", msg.Type)
@@ -128,14 +107,14 @@ func (c *LocalCharacter) HandleMessage(msg *world_models.WorldMessage) error {
 	return nil
 }
 
-func (c *LocalCharacter) HandleMove(msg *world_models.WorldMessage) {
+func (c *LocalCharacter) HandleMove(msg *objects.WorldMessage) {
 
 }
 
-func (c *LocalCharacter) HandleJoin(msg *world_models.WorldMessage) {
+func (c *LocalCharacter) HandleJoin(msg *objects.WorldMessage) {
 
 }
 
-func (c *LocalCharacter) HandleLeft(msg *world_models.WorldMessage) {
+func (c *LocalCharacter) HandleLeft(msg *objects.WorldMessage) {
 
 }
