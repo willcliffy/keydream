@@ -1,7 +1,7 @@
 import enum
 import pygame
 
-from src.tiled_renderer import Level
+from src.map import Level
 from src.objects.direction import Direction
 
 

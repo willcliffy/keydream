@@ -8,7 +8,6 @@ from src.player import (
     SCALED_DEFAULT_PLAYER_WIDTH,
     SCALED_SCREEN_WIDTH,
     SCALED_SCREEN_HEIGHT,
-    SCREEN_SCALE,
     Player
 )
 
@@ -35,8 +34,6 @@ class CameraGroup(pygame.sprite.Group):
         if self.player:
             offset = (self.player.rect.x + PLAYER_X_OFFSET, self.player.rect.y + PLAYER_Y_OFFSET)
             ysort = self.player.hitbox.y
-            # ysort will be somewhat broken because we're ysorting by the tile position, not the object position
-            # todo - fix this
 
         self.map.render_ysort_1(self.display, offset, ysort)
         self.player.draw(self.display, offset)

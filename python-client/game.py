@@ -3,7 +3,7 @@ import pygame
 from src.input import KeyboardInput
 from src.player import Player
 from src.map import Map
-from src.camera_group import CameraGroup
+from src.camera import CameraGroup
 
 
 SCREEN_SCALE = 2
