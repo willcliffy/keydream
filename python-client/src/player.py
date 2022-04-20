@@ -2,7 +2,7 @@ import enum
 import pygame
 
 from src.map import Level
-from src.objects.direction import Direction
+from src.input import Direction
 
 
 # todo - I'm really lazy. find a way to get config into every class
@@ -23,9 +23,6 @@ SCALED_HITBOX_X_OFFSET = 0
 SCALED_HITBOX_Y_OFFSET = SCALED_DEFAULT_PLAYER_HEIGHT / 12
 SCALED_HALF_HITBOX_INFL_X = SCALED_HITBOX_INFL_X / 2.0
 SCALED_HALF_HITBOX_INFL_Y = SCALED_HITBOX_INFL_Y / 2.0
-
-MAP_COLLISION_LAYER = 3
-
 
 class PlayerState(enum.Enum):
     IDLE = 0

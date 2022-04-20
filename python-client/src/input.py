@@ -1,7 +1,13 @@
+import enum
 import pygame
 
-from src.objects.direction import Direction
-from src.player import Player
+
+class Direction(enum.Enum):
+    UP = 0
+    DOWN = 1
+    LEFT = 2
+    RIGHT = 3
+
 
 class KeyboardInput:
     directions: list
