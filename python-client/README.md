@@ -38,8 +38,7 @@ This is version of the client that is being actively developed.
 - Player animations (idle and walking)
 - Tiled map integration with PyTMX
   - Collision detection with Tiled objects
-- Player-following camera
-- y-sort camera
+- camera (player-following, y-sort)
 
 ### Planned
 

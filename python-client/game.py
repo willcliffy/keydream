@@ -22,17 +22,21 @@ class Game:
         self.screen = pygame.display.set_mode([SCALED_SCREEN_WIDTH, SCALED_SCREEN_HEIGHT])
         self.input = KeyboardInput()
         self.map = Map(show_hitboxes=show_hitboxes)
-        self.player = Player(self.map.current_level, show_hitbox=show_hitboxes)
+        self.player = Player(self.map.current_level.get_starting_position(), show_hitbox=show_hitboxes)
         self.camera = CameraGroup(self.screen, self.map)
         self.camera.follow_player(self.player)
 
     def run(self):
         pygame_clock = pygame.time.Clock()
-
         pygame.init()
-        while self.input.input_system():
-            self.player.update(self.input.directions)
+
+        done = self.input.input_system()
+
+        while not done:
+            self.player.update(self.input.directions, self.map.current_level.get_colliders())
             self.camera.render()
             pygame.display.update()
             pygame_clock.tick(60)
+            done = self.input.input_system()
+
         pygame.quit()

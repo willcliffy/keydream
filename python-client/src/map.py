@@ -10,7 +10,7 @@ YSORT_COLLISION_LAYER = 4
 class Tile(pygame.sprite.Sprite):
     image: pygame.Surface
     rect: pygame.Rect
-    hitbox: pygame.Rect
+    hitbox: pygame.Rect = None
 
     def __init__(self, image, x, y, collider=False):
         pygame.sprite.Sprite.__init__(self)
@@ -99,6 +99,12 @@ class Level:
             if isinstance(layer, TiledTileLayer):
                 self.layers.append(Layer(layer, self.map_object.get_tile_colliders(), show_hitboxes))
 
+    def get_starting_position(self):
+        return (
+            self.map_object.get_object_by_name("starting_position").x,
+            self.map_object.get_object_by_name("starting_position").y
+        )
+
     def shiftLevel(self, shiftX: int):
         self.levelShift += shiftX
         for layer in self.layers:
@@ -115,15 +121,13 @@ class Level:
     def draw_ysort_1(self, screen: pygame.Surface, offset: tuple[int, int], ysort: int):
         for i in range(YSORT_COLLISION_LAYER):
             self.layers[i].draw(screen, offset)
-
-        self.layers[YSORT_COLLISION_LAYER].draw_ysort_1(screen, offset, ysort)
+        for i in range(YSORT_COLLISION_LAYER, len(self.layers)):
+            self.layers[i].draw_ysort_1(screen, offset, ysort)
 
 
     def draw_ysort_2(self, screen: pygame.Surface, offset: tuple[int, int], ysort: int):
-        self.layers[YSORT_COLLISION_LAYER].draw_ysort_2(screen, offset, ysort)
-
         for i in range(YSORT_COLLISION_LAYER + 1, len(self.layers)):
-            self.layers[i].draw(screen, offset)
+            self.layers[i].draw_ysort_2(screen, offset, ysort)
 
 
 class Map:
@@ -131,7 +135,15 @@ class Map:
     current_level: Level
 
     def __init__(self, show_hitboxes: bool = False):
-        self.levels = [Level("assets/map_0_collisions.tmx", show_hitboxes=show_hitboxes)]
+        self.levels = [
+            Level("assets/map/level_1a.tmx", show_hitboxes=show_hitboxes),
+            Level("assets/map/level_1b.tmx", show_hitboxes=show_hitboxes),
+            Level("assets/map/level_2.tmx", show_hitboxes=show_hitboxes),
+            Level("assets/map/level_2a.tmx", show_hitboxes=show_hitboxes),
+            Level("assets/map/level_2b.tmx", show_hitboxes=show_hitboxes),
+            Level("assets/map/level_2c.tmx", show_hitboxes=show_hitboxes),
+            Level("assets/map/level_3.tmx", show_hitboxes=show_hitboxes),
+        ]
         self.current_level = self.levels[0]
 
     def render(self, screen: pygame.Surface, offset: tuple[int, int]):
