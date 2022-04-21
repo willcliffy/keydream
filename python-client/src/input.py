@@ -19,22 +19,16 @@ class KeyboardInput:
                 if event.key == pygame.K_ESCAPE:
                     return True
                 elif event.key == pygame.K_UP or event.key == pygame.K_w:
-                    print("Up")
                     self.directions.append(SpriteDirection.UP)
                 elif event.key == pygame.K_DOWN or event.key == pygame.K_s:
-                    print("Down")
                     self.directions.append(SpriteDirection.DOWN)
                 elif event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                    print("Left")
                     self.directions.append(SpriteDirection.LEFT)
                 elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                    print("Right")
                     self.directions.append(SpriteDirection.RIGHT)
                 elif event.key == pygame.K_SPACE:
-                    print("Space")
                     self.actions.append(SpriteDirection.ATTACK)
                 elif event.key == pygame.K_LSHIFT:
-                    print("Shift")
                     self.actions.append(SpriteDirection.ROLL)
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_UP or event.key == pygame.K_w:

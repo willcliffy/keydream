@@ -126,7 +126,7 @@ class Level:
 
 
     def draw_ysort_2(self, screen: pygame.Surface, offset: tuple[int, int], ysort: int):
-        for i in range(YSORT_COLLISION_LAYER + 1, len(self.layers)):
+        for i in range(YSORT_COLLISION_LAYER, len(self.layers)):
             self.layers[i].draw_ysort_2(screen, offset, ysort)
 
 
