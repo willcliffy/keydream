@@ -7,7 +7,7 @@ use crate::player::{
     PLAYER_MOVEMENT_SPEED
 };
 
-pub fn input_system(
+pub fn input(
     keyboard_input: Res<Input<KeyCode>>,
     mut query: Query<(&mut Player, &mut Timer, &mut Transform, &mut TextureAtlasSprite, Without<Camera>)>,
     mut camera: Query<&mut Transform, With<Camera>>

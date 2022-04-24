@@ -3,6 +3,7 @@
 import pygame
 
 from src.map import Map
+from src.npc_controller import NPCController
 from src.player import (
     SCALED_DEFAULT_PLAYER_HEIGHT,
     SCALED_DEFAULT_PLAYER_WIDTH,
@@ -11,6 +12,8 @@ from src.player import (
     Player
 )
 
+from src.npc import NPC
+
 PLAYER_X_OFFSET = SCALED_DEFAULT_PLAYER_HEIGHT / 2 - SCALED_SCREEN_WIDTH / 2
 PLAYER_Y_OFFSET = SCALED_DEFAULT_PLAYER_WIDTH / 2 - SCALED_SCREEN_HEIGHT / 2
 
@@ -18,23 +21,19 @@ class CameraGroup(pygame.sprite.Group):
     display: pygame.Surface
     map: Map
     player: Player
+    npc_controller: NPCController
 
-    def __init__(self, screen, map):
+    def __init__(self, screen, map, npc_controller):
         self.display = screen
         self.map = map
+        self.npc_controller = npc_controller
 
     def follow_player(self, player):
         self.player = player
 
-    def render(self):
+    def draw(self):
         self.display.fill((0, 0, 0))
-        offset = (0, 0)
-        ysort = 0 # todo - have no idea how this acts when unlocked
-
-        if self.player:
-            offset = (self.player.rect.x + PLAYER_X_OFFSET, self.player.rect.y + PLAYER_Y_OFFSET)
-            ysort = self.player.hitbox.y
-
-        self.map.render_ysort_1(self.display, offset, ysort)
-        self.player.draw(self.display, offset)
-        self.map.render_ysort_2(self.display, offset, ysort)
+        self.map.draw(
+            self.display,
+            (self.player.rect.x + PLAYER_X_OFFSET, self.player.rect.y + PLAYER_Y_OFFSET) if self.player else (0, 0),
+            self.npc_controller.npcs + [self.player])

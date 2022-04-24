@@ -72,7 +72,7 @@ impl Player {
     }
 }
 
-pub fn player_startup(
+pub fn startup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlases: ResMut<Assets<TextureAtlas>>,
@@ -96,7 +96,7 @@ pub fn player_startup(
         .insert(Player::new());
 }
 
-pub fn player_animate_system(
+pub fn animate(
     time: Res<Time>,
     mut query: Query<(&mut Player, &mut Timer, &mut TextureAtlasSprite)>,
 ) {

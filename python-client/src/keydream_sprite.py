@@ -54,8 +54,8 @@ class KeydreamSprite(pygame.sprite.Sprite):
                 ],
                 1)
 
-    def update(self, directions: list[SpriteDirection], colliders):
-        self.move(directions, colliders)
+    def update(self, directions: list[SpriteDirection], hitboxes):
+        self.move(directions, hitboxes)
         self.game_tick_counter += 1
         if self.game_tick_counter > self.frame_delay:
             self.game_tick_counter = 0
@@ -72,7 +72,7 @@ class KeydreamSprite(pygame.sprite.Sprite):
                 if self.attack_counter >= 4:
                     self.attack_counter = 0
         
-    def move(self, directions: list[SpriteDirection], colliders):
+    def move(self, directions: list[SpriteDirection], hitboxes):
         dx, dy = directions_to_dx_dy(directions, self.speed)
         if dx == 0.0 and dy == 0.0:
             self.state = SpriteState.IDLE
@@ -83,9 +83,9 @@ class KeydreamSprite(pygame.sprite.Sprite):
             self.hitbox.y += dy
             y_hit_list = pygame.sprite.spritecollide(
                 self,
-                colliders,
+                hitboxes,
                 False,
-                lambda sprite, collider: sprite.hitbox.colliderect(collider))
+                lambda sprite, hitbox: sprite.hitbox.colliderect(hitbox.hitbox))
 
             if len(y_hit_list) > 0:
                 self.hitbox.y -= dy
@@ -97,9 +97,9 @@ class KeydreamSprite(pygame.sprite.Sprite):
             self.hitbox.x += dx
             x_hit_list = pygame.sprite.spritecollide(
                 self,
-                colliders,
+                hitboxes,
                 False,
-                lambda sprite, collider: sprite.hitbox.colliderect(collider))
+                lambda sprite, hitbox: sprite.hitbox.colliderect(hitbox.hitbox))
 
             if len(x_hit_list) > 0:
                 self.hitbox.x -= dx
@@ -107,14 +107,16 @@ class KeydreamSprite(pygame.sprite.Sprite):
                 self.rect.x += dx
                 self.change_direction(SpriteDirection.RIGHT if dx > 0 else SpriteDirection.LEFT)
 
-    def change_direction(self, direction: SpriteDirection):
+    def change_direction(self, direction: SpriteDirection, reset_frame: bool = False):
         self.direction = direction
-        self.current_frame = 0
+        if reset_frame:
+            self.current_frame = 0
         self.image = self.images[self.state][self.direction][self.current_frame]
 
-    def change_state(self, state: SpriteState):
+    def change_state(self, state: SpriteState, reset_frame: bool = False):
         self.state = state
-        self.current_frame = 0
+        if reset_frame:
+            self.current_frame = 0
         self.image = self.images[self.state][self.direction][self.current_frame]
 
 

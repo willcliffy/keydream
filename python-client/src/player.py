@@ -43,8 +43,8 @@ class Player(KeydreamSprite):
         image = images[self.state][self.direction][self.current_frame]
 
         rect = image.get_rect()
-        rect.x = starting_position[0]
-        rect.y = starting_position[1]
+        rect.x = starting_position[0] - rect.width
+        rect.y = starting_position[1] - rect.height
 
         hitbox = rect.inflate(SCALED_HITBOX_INFL_X, SCALED_HITBOX_INFL_Y)
         hitbox.x += SCALED_HITBOX_X_OFFSET
