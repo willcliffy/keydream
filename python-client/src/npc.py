@@ -12,20 +12,40 @@ from src.player import (
 from src.objects import SpriteDirection, SpriteState
 from src.keydream_sprite import KeydreamSprite
 
+
 class NPC(KeydreamSprite):
     def __init__(self, starting_position: tuple[int, int], show_hitbox: bool = False):
         images = {}
 
+        image = pygame.image.load("assets/_cyberrumor/player.png")
+
         for state in SpriteState:
-            images[state] = {}
-            for direction in SpriteDirection:
-                images[state][direction] = []
-                for frame in range(4):
-                    url = f"assets/_rgs_dev/Character without weapon/{state.name.lower()}/{state.name.lower()} {direction.name.lower()}{frame + 1}.png"
-                    image = pygame.image.load(url)
-                    images[state][direction].append(pygame.transform.scale(
-                        image,
-                        (SCALED_DEFAULT_PLAYER_WIDTH, SCALED_DEFAULT_PLAYER_HEIGHT)))
+            images[state] = {
+                SpriteDirection.DOWN: [
+                    pygame.transform.scale(image.subsurface(pygame.Rect(00, 0, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(16, 0, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(32, 0, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(16, 0, 16, 32)), (64, 128)),
+                ],
+                SpriteDirection.UP: [
+                    pygame.transform.scale(image.subsurface(pygame.Rect(00, 32, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(16, 32, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(32, 32, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(16, 32, 16, 32)), (64, 128)),
+                ],
+                SpriteDirection.LEFT: [
+                    pygame.transform.scale(image.subsurface(pygame.Rect(00, 64, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(16, 64, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(32, 64, 16, 32)), (64, 128)),
+                    pygame.transform.scale(image.subsurface(pygame.Rect(16, 64, 16, 32)), (64, 128)),
+                ],
+                SpriteDirection.RIGHT: [
+                    pygame.transform.flip(pygame.transform.scale(image.subsurface(pygame.Rect(00, 64, 16, 32)), (64, 128)), True, False),
+                    pygame.transform.flip(pygame.transform.scale(image.subsurface(pygame.Rect(16, 64, 16, 32)), (64, 128)), True, False),
+                    pygame.transform.flip(pygame.transform.scale(image.subsurface(pygame.Rect(32, 64, 16, 32)), (64, 128)), True, False),
+                    pygame.transform.flip(pygame.transform.scale(image.subsurface(pygame.Rect(16, 64, 16, 32)), (64, 128)), True, False),
+                ]
+            }
 
         image = images[self.state][self.direction][self.current_frame]
 
@@ -37,5 +57,8 @@ class NPC(KeydreamSprite):
         hitbox.x += SCALED_HITBOX_X_OFFSET
         hitbox.y += SCALED_HITBOX_Y_OFFSET
 
-        KeydreamSprite.__init__(self, images, image, rect, hitbox, DEFAULT_PLAYER_SPEED, show_hitbox)
+        KeydreamSprite.__init__(self, images, image, rect, hitbox, DEFAULT_PLAYER_SPEED, 3, show_hitbox)
+
+    def interact(self, player):
+        pass
 

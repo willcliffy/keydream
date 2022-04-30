@@ -145,7 +145,6 @@ class Map:
                     if self.show_hitboxes:
                         pygame.draw.rect(screen, (255, 0, 0), [tile.hitbox.x - offset[0], tile.hitbox.y - offset[1], tile.hitbox.w, tile.hitbox.h], 1)
 
-        # print(len(sprites))
         for sprite in sprites:
             sprite.draw(screen, offset)
 

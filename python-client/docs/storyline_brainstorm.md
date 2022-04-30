@@ -118,3 +118,16 @@ So there will be 7 pyTMX files:
 - level_2b.tmx - Plot section 4
 - level_2c.tmx - Plot section 4
 - level_3.tmx  - Plot section 5, 6
+
+## Gameplay considerations
+
+Rough time outline:
+
+- 20 mins for intro
+  - movement, npc interaction, picking up items and tools.
+  - introduce characters
+- 5 mins transition
+- 15 mins dungeon I
+- 15 mins dungeon II
+- 15 mins dungeon III
+- 20 mins conlusion

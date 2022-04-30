@@ -11,7 +11,7 @@ class KeydreamSprite(pygame.sprite.Sprite):
     frames_per_animation: int = 4
 
     # TODO - this is measured in game ticks, do better
-    frame_delay: int = 15
+    frame_delay: int = 10
 
     # TODO - this is just horrible
     game_tick_counter: int = 0
@@ -31,6 +31,7 @@ class KeydreamSprite(pygame.sprite.Sprite):
         rect: pygame.Rect,
         hitbox: pygame.Rect,
         speed: float = 8.0,
+        frames_per_animation: int = 4,
         show_hitbox: bool = False):
         pygame.sprite.Sprite.__init__(self)
         self.images = images
@@ -38,11 +39,18 @@ class KeydreamSprite(pygame.sprite.Sprite):
         self.rect = rect
         self.hitbox = hitbox
         self.speed = speed
+        self.frames_per_animation = frames_per_animation
         self.show_hitbox = show_hitbox
 
     def draw(self, screen: pygame.Surface, offset: tuple[int, int]):
         screen.blit(self.image, (self.rect.x - offset[0], self.rect.y - offset[1]))
         if self.show_hitbox:
+            print([
+                    self.hitbox.x - offset[0],
+                    self.hitbox.y - offset[1],
+                    self.hitbox.width,
+                    self.hitbox.height
+                ])
             pygame.draw.rect(
                 screen,
                 (255, 0, 0),
@@ -56,6 +64,9 @@ class KeydreamSprite(pygame.sprite.Sprite):
 
     def update(self, directions: list[SpriteDirection], hitboxes):
         self.move(directions, hitboxes)
+        if self.state == SpriteState.IDLE:
+            return
+
         self.game_tick_counter += 1
         if self.game_tick_counter > self.frame_delay:
             self.game_tick_counter = 0
@@ -75,9 +86,9 @@ class KeydreamSprite(pygame.sprite.Sprite):
     def move(self, directions: list[SpriteDirection], hitboxes):
         dx, dy = directions_to_dx_dy(directions, self.speed)
         if dx == 0.0 and dy == 0.0:
-            self.state = SpriteState.IDLE
-        elif self.state != SpriteState.ROLL and self.state != SpriteState.ATTACK:
-            self.state = SpriteState.WALK
+            self.change_state(SpriteState.IDLE, reset_frame=True)
+        elif self.state != SpriteState.ROLL and self.state != SpriteState.ATTACK and self.state != SpriteState.WALK:
+            self.change_state(SpriteState.WALK, reset_frame=False)
 
         if dy != 0:
             self.hitbox.y += dy
@@ -116,7 +127,7 @@ class KeydreamSprite(pygame.sprite.Sprite):
     def change_state(self, state: SpriteState, reset_frame: bool = False):
         self.state = state
         if reset_frame:
-            self.current_frame = 0
+            self.current_frame = 1 if state == SpriteState.IDLE else 0
         self.image = self.images[self.state][self.direction][self.current_frame]
 
 
